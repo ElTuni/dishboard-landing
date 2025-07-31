@@ -6,6 +6,11 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Dishboard',
   description: 'Hacé que tu local gastronómico destaque de la competencia',
+  icons: {
+    icon: '/logonotext.png',
+    shortcut: '/logonotext.png',
+    apple: '/logonotext.png',
+  },
 }
 
 export default function RootLayout({
