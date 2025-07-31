@@ -131,7 +131,7 @@ export default function DishboardLandingPageES() {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-center">¿En qué te gana la competencia?</CardTitle>
+                  <CardTitle className="text-center">¿En qué te gana?</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ComparisonChart />
@@ -188,7 +188,7 @@ export default function DishboardLandingPageES() {
                   <h3 className="text-lg font-bold text-[#2A3C3F]">Medí el impacto de tus acciones</h3>
                 </div>
                 <p className="text-sm text-gray-600">
-                  ¿Hiciste un cambio en el menú? ¿Renovaste el local? Mirá cómo reaccionan tus métricas en tiempo real y
+                  ¿Hiciste un cambio en el menú? ¿Renovaste el local?<br/>Mirá cómo reaccionan tus métricas en tiempo real y
                   comprobá qué es lo que de verdad funciona.
                 </p>
               </div>
