@@ -80,7 +80,7 @@ export default function DishboardLandingPageES() {
                     Hacé que tu local gastronómico destaque de la competencia.
                   </h1>
                   <p className="max-w-[600px] text-gray-600 md:text-xl">
-                    Convertimos las opiniones dispersas de tus clientes en recomendaciones claras y{" "}
+                    Convertimos todas las opiniones de tus clientes en recomendaciones{" "}
                     <span className="underline decoration-[#8EE0B2] decoration-2 underline-offset-4">accionables</span>{" "}
                     para mejorar tu local.
                   </p>

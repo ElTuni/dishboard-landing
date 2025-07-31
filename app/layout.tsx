@@ -4,7 +4,7 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Dishboard',
+  title: 'dishboard',
   description: 'Hacé que tu local gastronómico destaque de la competencia',
   icons: {
     icon: '/logonotext.png',
