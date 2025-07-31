@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetTrigger, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { Menu, LayoutDashboard, Lightbulb, Users, TrendingUp, MapPin, Instagram } from "lucide-react"
 import { EvolutionChartEN } from "@/components/line-chart-en"
 import { ComparisonChartEN } from "@/components/bar-chart-en"
@@ -43,6 +43,7 @@ export default function DishboardLandingPageEN() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
+              <SheetTitle className="sr-only">Navigation menu</SheetTitle>
               <nav className="grid gap-6 text-lg font-medium">
                 <Link href="/en" className="flex items-center gap-2 text-lg font-semibold" prefetch={false}>
                   <Image src="/logo.png" alt="Dishboard Logo" width={150} height={40} className="object-contain" />
@@ -80,7 +81,7 @@ export default function DishboardLandingPageEN() {
                     insights to improve your eatery.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row min-[400px]:justify-center min-[500px]:justify-start">
+                <div className="flex flex-col gap-2 min-[500px]:flex-row">
                   <Link href="#waitlist">
                     <Button size="lg" className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] w-full">
                       Join the Waitlist
@@ -99,7 +100,7 @@ export default function DishboardLandingPageEN() {
                   width="600"
                   height="400"
                   alt="Illustration of a food business owner analyzing business data and charts on a laptop"
-                  className="aspect-video overflow-hidden rounded-xl object-contain w-full max-w-lg lg:order-last"
+                  className="aspect-video overflow-hidden rounded-xl object-contain w-full max-w-lg lg:order-last mt-8 sm:mt-0"
                 />
               </div>
             </div>

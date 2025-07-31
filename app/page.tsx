@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetTrigger, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { Menu, LayoutDashboard, Lightbulb, Users, TrendingUp, MapPin, Instagram } from "lucide-react"
 import { EvolutionChart } from "@/components/line-chart"
 import { ComparisonChart } from "@/components/bar-chart"
@@ -46,6 +46,7 @@ export default function DishboardLandingPageES() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
+              <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
               <nav className="grid gap-6 text-lg font-medium">
                 <Link href="#" className="flex items-center gap-2 text-lg font-semibold" prefetch={false}>
                   <Image src="/logo.png" alt="Logo de Dishboard" width={150} height={40} className="object-contain" />
@@ -83,7 +84,7 @@ export default function DishboardLandingPageES() {
                     para mejorar tu local.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row min-[400px]:justify-center min-[500px]:justify-start">
+                <div className="flex flex-col gap-2 min-[500px]:flex-row">
                   <Link href="#waitlist">
                     <Button size="lg" className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] w-full">
                       Unite a la lista de espera
@@ -102,7 +103,7 @@ export default function DishboardLandingPageES() {
                   width="600"
                   height="400"
                   alt="Ilustración de una dueña de local gastronómico analizando datos y gráficos de su negocio en una laptop"
-                  className="aspect-video overflow-hidden rounded-xl object-contain w-full max-w-lg lg:order-last"
+                  className="aspect-video overflow-hidden rounded-xl object-contain w-full max-w-lg lg:order-last mt-8 sm:mt-0"
                 />
               </div>
             </div>
