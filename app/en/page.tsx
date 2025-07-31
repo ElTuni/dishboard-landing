@@ -6,7 +6,18 @@ import { Menu, LayoutDashboard, Lightbulb, Users, TrendingUp, MapPin, Instagram 
 import { EvolutionChartEN } from "@/components/line-chart-en"
 import { ComparisonChartEN } from "@/components/bar-chart-en"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { WaitlistFormEN } from "@/components/waitlist-form-en"
+import dynamic from "next/dynamic"
+
+const WaitlistFormEN = dynamic(() => import("@/components/waitlist-form-en").then(mod => ({ default: mod.WaitlistFormEN })), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4">
+      <div className="h-12 bg-gray-100 rounded-md animate-pulse"></div>
+      <div className="h-12 bg-gray-100 rounded-md animate-pulse"></div>
+      <div className="h-12 bg-green-100 rounded-md animate-pulse"></div>
+    </div>
+  )
+})
 
 export default function DishboardLandingPageEN() {
   return (
