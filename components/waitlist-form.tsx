@@ -168,40 +168,52 @@ export function WaitlistForm() {
       console.log('🗺️ Loading Google Maps script...')
       googleMapsScript.onload = () => {
         console.log('🗺️ Google Maps script loaded successfully')
-        console.log('🗺️ window.google available:', !!window.google)
-        console.log('🗺️ window.google.maps available:', !!(window.google && window.google.maps))
-        console.log('🗺️ window.google.maps.places available:', !!(window.google && window.google.maps && window.google.maps.places))
-        console.log('🗺️ businessNameInputRef available:', !!businessNameInputRef.current)
         
-        if (businessNameInputRef.current && window.google && window.google.maps && window.google.maps.places) {
-          try {
-            console.log('🗺️ Initializing Google Places Autocomplete...')
-            const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
-              types: ["establishment"],
-              fields: ["name"],
+        // Wait for Places API to load with retry mechanism
+        const initializePlaces = (attempt = 1) => {
+          console.log(`🗺️ Attempt ${attempt} - Checking Places API availability...`)
+          console.log('🗺️ window.google available:', !!window.google)
+          console.log('🗺️ window.google.maps available:', !!(window.google && window.google.maps))
+          console.log('🗺️ window.google.maps.places available:', !!(window.google && window.google.maps && window.google.maps.places))
+          console.log('🗺️ businessNameInputRef available:', !!businessNameInputRef.current)
+          
+          if (businessNameInputRef.current && window.google && window.google.maps && window.google.maps.places) {
+            try {
+              console.log('🗺️ Initializing Google Places Autocomplete...')
+              const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
+                types: ["establishment"],
+                fields: ["name"],
+              })
+              console.log('🗺️ Autocomplete initialized successfully!')
+              
+              autocomplete.addListener("place_changed", () => {
+                console.log('🗺️ Place changed event triggered')
+                const place = autocomplete.getPlace()
+                console.log('🗺️ Selected place:', place)
+                if (place && place.name) {
+                  businessNameInputRef.current!.value = place.name
+                  console.log('🗺️ Set business name to:', place.name)
+                }
+              })
+            } catch (error) {
+              console.error('❌ Google Places Autocomplete initialization failed:', error)
+            }
+          } else if (attempt < 10) {
+            console.log(`🗺️ Places API not ready yet, retrying in 500ms... (attempt ${attempt}/10)`)
+            setTimeout(() => initializePlaces(attempt + 1), 500)
+          } else {
+            console.error('❌ Places API failed to load after 10 attempts')
+            console.warn('❌ Missing dependencies for Google Places:', {
+              input: !!businessNameInputRef.current,
+              google: !!window.google,
+              maps: !!(window.google && window.google.maps),
+              places: !!(window.google && window.google.maps && window.google.maps.places)
             })
-            console.log('🗺️ Autocomplete initialized successfully!')
-            
-            autocomplete.addListener("place_changed", () => {
-              console.log('🗺️ Place changed event triggered')
-              const place = autocomplete.getPlace()
-              console.log('🗺️ Selected place:', place)
-              if (place && place.name) {
-                businessNameInputRef.current!.value = place.name
-                console.log('🗺️ Set business name to:', place.name)
-              }
-            })
-          } catch (error) {
-            console.error('❌ Google Places Autocomplete initialization failed:', error)
           }
-        } else {
-          console.warn('❌ Missing dependencies for Google Places:', {
-            input: !!businessNameInputRef.current,
-            google: !!window.google,
-            maps: !!(window.google && window.google.maps),
-            places: !!(window.google && window.google.maps && window.google.maps.places)
-          })
         }
+        
+        // Start initialization
+        initializePlaces()
       }
       
       googleMapsScript.onerror = (error) => {
