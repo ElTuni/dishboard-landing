@@ -18,6 +18,10 @@ declare global {
             addListener: (event: string, callback: () => void) => void
             getPlace: () => { place_id?: string; name?: string; formatted_address?: string }
           }
+          PlaceAutocompleteElement: new () => HTMLElement & {
+            addEventListener: (event: string, callback: (e: any) => void) => void
+            setAttribute: (name: string, value: string) => void
+          }
         }
       }
     }
@@ -165,19 +169,63 @@ export function WaitlistFormEN() {
         const initializePlaces = (attempt = 1) => {
           if (businessNameInputRef.current && window.google && window.google.maps && window.google.maps.places) {
             try {
-              const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
-                types: ["establishment"],
-                fields: ["name"],
-              })
-              
-              autocomplete.addListener("place_changed", () => {
-                const place = autocomplete.getPlace()
-                if (place && place.name) {
-                  businessNameInputRef.current!.value = place.name
-                }
-              })
+              // Try new PlaceAutocompleteElement first (future-proof)
+              if (window.google.maps.places.PlaceAutocompleteElement) {
+                console.log('🆕 Using new PlaceAutocompleteElement (future-proof)')
+                
+                const autocompleteElement = new window.google.maps.places.PlaceAutocompleteElement()
+                
+                // Configure the autocomplete element
+                autocompleteElement.setAttribute('placeholder', 'Your place\'s name')
+                autocompleteElement.setAttribute('types', 'establishment')
+                
+                // Copy styles from original input
+                autocompleteElement.className = businessNameInputRef.current.className
+                autocompleteElement.style.width = '100%'
+                autocompleteElement.style.padding = businessNameInputRef.current.style.padding || '8px 12px'
+                autocompleteElement.style.border = businessNameInputRef.current.style.border || '1px solid #d1d5db'
+                autocompleteElement.style.borderRadius = businessNameInputRef.current.style.borderRadius || '6px'
+                autocompleteElement.style.fontSize = businessNameInputRef.current.style.fontSize || '14px'
+                
+                // Insert the new element before the original input
+                businessNameInputRef.current.parentNode?.insertBefore(autocompleteElement, businessNameInputRef.current)
+                
+                // Hide the original input but keep it for form submission
+                businessNameInputRef.current.style.display = 'none'
+                
+                autocompleteElement.addEventListener('gmp-placeselect', (event: any) => {
+                  console.log('🗺️ Place selected (new API):', event.place)
+                  const place = event.place
+                  if (place && place.displayName) {
+                    businessNameInputRef.current!.value = place.displayName
+                  }
+                })
+                
+                console.log('✅ New PlaceAutocompleteElement initialized successfully!')
+              } else {
+                throw new Error('PlaceAutocompleteElement not available, falling back to legacy')
+              }
             } catch (error) {
-              console.warn('Google Places Autocomplete initialization failed:', error)
+              console.log('⚠️ New API failed, using legacy Autocomplete:', error)
+              
+              // Fallback to legacy Autocomplete
+              try {
+                const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
+                  types: ["establishment"],
+                  fields: ["name"],
+                })
+                
+                autocomplete.addListener("place_changed", () => {
+                  const place = autocomplete.getPlace()
+                  if (place && place.name) {
+                    businessNameInputRef.current!.value = place.name
+                  }
+                })
+                
+                console.log('✅ Legacy Autocomplete initialized as fallback')
+              } catch (fallbackError) {
+                console.warn('❌ Both new and legacy APIs failed:', fallbackError)
+              }
             }
           } else if (attempt < 10) {
             setTimeout(() => initializePlaces(attempt + 1), 500)
