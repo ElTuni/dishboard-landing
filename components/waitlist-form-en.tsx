@@ -103,13 +103,15 @@ export function WaitlistFormEN() {
     const recaptchaScript = document.createElement("script")
     recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN"
     recaptchaScript.async = true
+    
+    // Add error handler to prevent uncaught errors
+    recaptchaScript.onerror = (error) => {
+      console.warn('reCAPTCHA script failed to load:', error)
+    }
+    
     document.head.appendChild(recaptchaScript)
 
-    // Load Brevo form script
-    const brevoScript = document.createElement("script")
-    brevoScript.src = "https://sibforms.com/forms/end-form/build/main.js"
-    brevoScript.defer = true
-    document.head.appendChild(brevoScript)
+    // Note: Removed Brevo script as we now use iframe submission to avoid DOM conflicts
 
     // Load Google Maps script
     const googleMapsScript = document.createElement("script")
@@ -140,10 +142,17 @@ export function WaitlistFormEN() {
     }
 
     return () => {
-      // Cleanup scripts on unmount
-      if (document.head.contains(recaptchaScript)) document.head.removeChild(recaptchaScript)
-      if (document.head.contains(brevoScript)) document.head.removeChild(brevoScript)
-      if (document.head.contains(googleMapsScript)) document.head.removeChild(googleMapsScript)
+      // Cleanup scripts on unmount - with safety checks
+      try {
+        if (recaptchaScript && document.head.contains(recaptchaScript)) {
+          document.head.removeChild(recaptchaScript)
+        }
+        if (googleMapsScript && document.head.contains(googleMapsScript)) {
+          document.head.removeChild(googleMapsScript)
+        }
+      } catch (error) {
+        console.warn('Error during script cleanup:', error)
+      }
     }
   }, [])
 
@@ -174,7 +183,7 @@ export function WaitlistFormEN() {
           placeholder="Your email" 
           required 
           className="w-full"
-          pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+          pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
           title="Please enter a valid email address (example: user@domain.com)"
         />
       </div>
