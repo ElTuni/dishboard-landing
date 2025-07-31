@@ -155,6 +155,11 @@ export function WaitlistForm() {
     // Load Google Maps script
     const googleMapsScript = document.createElement("script")
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    
+    // DEBUG: Log API key status (remove after testing)
+    console.log('🔑 Google Maps API Key present:', !!apiKey)
+    console.log('🔑 API Key first/last chars:', apiKey ? `${apiKey.slice(0,8)}...${apiKey.slice(-4)}` : 'MISSING')
+    
     if (apiKey) {
       googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`
       googleMapsScript.async = true
