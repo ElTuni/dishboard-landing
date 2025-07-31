@@ -87,18 +87,6 @@
   body {
     @apply bg-background text-foreground;
   }
-  
-  /* Smooth scroll behavior - compatible with SSR */
-  html {
-    scroll-behavior: smooth;
-  }
-  
-  /* Prevent scroll behavior conflicts during hydration */
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-  }
 }
 
 /* Custom styles to prevent persistent blue color on email inputs */

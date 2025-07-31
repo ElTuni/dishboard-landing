@@ -8,18 +8,7 @@ import { Menu, LayoutDashboard, Lightbulb, Users, TrendingUp, MapPin, Instagram 
 import { EvolutionChart } from "@/components/line-chart"
 import { ComparisonChart } from "@/components/bar-chart"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import dynamic from "next/dynamic"
-
-const WaitlistForm = dynamic(() => import("@/components/waitlist-form").then(mod => ({ default: mod.WaitlistForm })), {
-  ssr: false,
-  loading: () => (
-    <div className="space-y-4">
-      <div className="h-12 bg-gray-100 rounded-md animate-pulse"></div>
-      <div className="h-12 bg-gray-100 rounded-md animate-pulse"></div>
-      <div className="h-12 bg-green-100 rounded-md animate-pulse"></div>
-    </div>
-  )
-})
+import { WaitlistForm } from "@/components/waitlist-form"
 // import { AnimateOnScroll } from "@/components/animate-on-scroll"
 
 export default function DishboardLandingPageES() {
