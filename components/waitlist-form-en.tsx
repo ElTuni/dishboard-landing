@@ -156,59 +156,31 @@ export function WaitlistFormEN() {
     const googleMapsScript = document.createElement("script")
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     
-    // DEBUG: Log API key status (remove after testing)
-    console.log('🔑 Google Maps API Key present:', !!apiKey)
-    console.log('🔑 API Key first/last chars:', apiKey ? `${apiKey.slice(0,8)}...${apiKey.slice(-4)}` : 'MISSING')
-    
     if (apiKey) {
       googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`
       googleMapsScript.async = true
       
-      // DEBUG: Log script loading
-      console.log('🗺️ Loading Google Maps script...')
       googleMapsScript.onload = () => {
-        console.log('🗺️ Google Maps script loaded successfully')
-        
         // Wait for Places API to load with retry mechanism
         const initializePlaces = (attempt = 1) => {
-          console.log(`🗺️ Attempt ${attempt} - Checking Places API availability...`)
-          console.log('🗺️ window.google available:', !!window.google)
-          console.log('🗺️ window.google.maps available:', !!(window.google && window.google.maps))
-          console.log('🗺️ window.google.maps.places available:', !!(window.google && window.google.maps && window.google.maps.places))
-          console.log('🗺️ businessNameInputRef available:', !!businessNameInputRef.current)
-          
           if (businessNameInputRef.current && window.google && window.google.maps && window.google.maps.places) {
             try {
-              console.log('🗺️ Initializing Google Places Autocomplete...')
               const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
                 types: ["establishment"],
                 fields: ["name"],
               })
-              console.log('🗺️ Autocomplete initialized successfully!')
               
               autocomplete.addListener("place_changed", () => {
-                console.log('🗺️ Place changed event triggered')
                 const place = autocomplete.getPlace()
-                console.log('🗺️ Selected place:', place)
                 if (place && place.name) {
                   businessNameInputRef.current!.value = place.name
-                  console.log('🗺️ Set business name to:', place.name)
                 }
               })
             } catch (error) {
-              console.error('❌ Google Places Autocomplete initialization failed:', error)
+              console.warn('Google Places Autocomplete initialization failed:', error)
             }
           } else if (attempt < 10) {
-            console.log(`🗺️ Places API not ready yet, retrying in 500ms... (attempt ${attempt}/10)`)
             setTimeout(() => initializePlaces(attempt + 1), 500)
-          } else {
-            console.error('❌ Places API failed to load after 10 attempts')
-            console.warn('❌ Missing dependencies for Google Places:', {
-              input: !!businessNameInputRef.current,
-              google: !!window.google,
-              maps: !!(window.google && window.google.maps),
-              places: !!(window.google && window.google.maps && window.google.maps.places)
-            })
           }
         }
         
@@ -217,12 +189,10 @@ export function WaitlistFormEN() {
       }
       
       googleMapsScript.onerror = (error) => {
-        console.error('❌ Google Maps script failed to load:', error)
+        console.warn('Google Maps script failed to load:', error)
       }
       
       document.head.appendChild(googleMapsScript)
-    } else {
-      console.error('❌ No Google Maps API key found')
     }
 
     return () => {
