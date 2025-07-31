@@ -138,27 +138,28 @@ export function WaitlistFormEN() {
   }
 
   useEffect(() => {
-    // Load reCAPTCHA v3 script
-    const recaptchaScript = document.createElement("script")
-    recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN"
-    recaptchaScript.async = true
-    
-    // Add error handler to prevent uncaught errors
-    recaptchaScript.onerror = (error) => {
-      console.warn('reCAPTCHA script failed to load:', error)
+    // Load reCAPTCHA v3 script (only if not already loaded)
+    if (!document.querySelector('script[src*="recaptcha/api.js"]')) {
+      const recaptchaScript = document.createElement("script")
+      recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN"
+      recaptchaScript.async = true
+      
+      // Add error handler to prevent uncaught errors
+      recaptchaScript.onerror = (error) => {
+        console.warn('reCAPTCHA script failed to load:', error)
+      }
+      
+      document.head.appendChild(recaptchaScript)
     }
-    
-    document.head.appendChild(recaptchaScript)
 
-    // Note: Removed Brevo script as we now use iframe submission to avoid DOM conflicts
-
-    // Load Google Maps script
-    const googleMapsScript = document.createElement("script")
+    // Load Google Maps script (only if not already loaded)
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     
-    if (apiKey) {
+    if (apiKey && !document.querySelector('script[src*="maps.googleapis.com"]') && !window.google) {
+      const googleMapsScript = document.createElement("script")
       googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`
       googleMapsScript.async = true
+      googleMapsScript.id = "google-maps-script"
       
       googleMapsScript.onload = () => {
         // Wait for Places API to load with retry mechanism
@@ -193,20 +194,29 @@ export function WaitlistFormEN() {
       }
       
       document.head.appendChild(googleMapsScript)
+    } else if (window.google && window.google.maps && window.google.maps.places && businessNameInputRef.current) {
+      // Google Maps is already loaded, just initialize autocomplete
+      try {
+        const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
+          types: ["establishment"],
+          fields: ["name"],
+        })
+        
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace()
+          if (place && place.name) {
+            businessNameInputRef.current!.value = place.name
+          }
+        })
+      } catch (error) {
+        console.warn('Google Places Autocomplete initialization failed:', error)
+      }
     }
 
     return () => {
-      // Cleanup scripts on unmount - with safety checks
-      try {
-        if (recaptchaScript && document.head.contains(recaptchaScript)) {
-          document.head.removeChild(recaptchaScript)
-        }
-        if (googleMapsScript && document.head.contains(googleMapsScript)) {
-          document.head.removeChild(googleMapsScript)
-        }
-      } catch (error) {
-        console.warn('Error during script cleanup:', error)
-      }
+      // Note: We don't cleanup Google Maps scripts on unmount to avoid
+      // re-downloading when navigating between pages (language switching)
+      // This prevents the "already defined" errors in console
     }
   }, [])
 

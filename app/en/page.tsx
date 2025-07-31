@@ -80,7 +80,7 @@ export default function DishboardLandingPageEN() {
                     insights to improve your eatery.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                <div className="flex flex-col gap-2 min-[400px]:flex-row min-[400px]:px-2 min-[441px]:px-0">
                   <Link href="#waitlist">
                     <Button size="lg" className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] w-full">
                       Join the Waitlist
