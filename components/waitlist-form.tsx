@@ -37,6 +37,17 @@ export function WaitlistForm() {
 
     try {
       const form = e.target as HTMLFormElement
+      const formData = new FormData(form)
+      
+      // Validate email format
+      const email = formData.get('EMAIL') as string
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+      if (!email || !emailRegex.test(email)) {
+        setSubmitStatus('error')
+        setSubmitMessage('Por favor ingresá un email válido.')
+        setIsSubmitting(false)
+        return
+      }
 
       // Get reCAPTCHA token
       if (window.grecaptcha) {
@@ -107,18 +118,22 @@ export function WaitlistForm() {
       googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`
       googleMapsScript.async = true
       googleMapsScript.onload = () => {
-        if (businessNameInputRef.current && window.google) {
-          const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
-            types: ["establishment"],
-            fields: ["name"],
-          })
-          autocomplete.addListener("place_changed", () => {
-            const place = autocomplete.getPlace()
-            if (place && place.name) {
-              // El campo ya tiene el nombre correcto, Google Places solo ayuda con el autocompletado
-              businessNameInputRef.current!.value = place.name
-            }
-          })
+        if (businessNameInputRef.current && window.google && window.google.maps && window.google.maps.places) {
+          try {
+            const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
+              types: ["establishment"],
+              fields: ["name"],
+            })
+            autocomplete.addListener("place_changed", () => {
+              const place = autocomplete.getPlace()
+              if (place && place.name) {
+                // El campo ya tiene el nombre correcto, Google Places solo ayuda con el autocompletado
+                businessNameInputRef.current!.value = place.name
+              }
+            })
+          } catch (error) {
+            console.warn('Google Places Autocomplete could not be initialized:', error)
+          }
         }
       }
       document.head.appendChild(googleMapsScript)
@@ -152,7 +167,16 @@ export function WaitlistForm() {
           required
           className="w-full"
         />
-        <Input type="email" id="EMAIL" name="EMAIL" placeholder="Tu email" required className="w-full" />
+        <Input 
+          type="email" 
+          id="EMAIL" 
+          name="EMAIL" 
+          placeholder="Tu email" 
+          required 
+          className="w-full"
+          pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+          title="Por favor ingresá un email válido (ejemplo: usuario@dominio.com)"
+        />
       </div>
 
       <Button 
