@@ -37,44 +37,52 @@ export function WaitlistFormEN() {
 
     try {
       const form = e.target as HTMLFormElement
-      const formData = new FormData(form)
 
+      // Get reCAPTCHA token
       if (window.grecaptcha) {
         await new Promise<void>((resolve) => {
           window.grecaptcha.ready(() => {
             window.grecaptcha.execute('6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN', { action: 'submit' }).then((token: string) => {
-              formData.set('g-recaptcha-response', token)
+              const tokenInput = form.querySelector('#g-recaptcha-response') as HTMLInputElement
+              if (tokenInput) {
+                tokenInput.value = token
+              }
               resolve()
             })
           })
         })
       }
 
-      const response = await fetch('https://c46696aa.sibforms.com/serve/MUIFAPyHxzcRNVhtg8utFAJJk2a7JcXthSQwhP5P82Rh84DmreFXpmDSqO8ujHYLUN7CNOuxqCAmmbe7kH_ebzfBkUsGayGyX2qlSHsVu9K5WqOGVfnhEGh9gmkwLLUUKXWyHqUOw4S2HRqY25swTnUSh2FXpaZDLcf03ecW0jzQS810JxYx5_7iyqMUepkEEDlooTxkNH_2Z0G_', {
-        method: 'POST',
-        body: formData,
-      })
+      // Create hidden iframe for form submission
+      const iframe = document.createElement('iframe')
+      iframe.style.display = 'none'
+      iframe.name = 'hidden_iframe'
+      document.body.appendChild(iframe)
 
-      if (response.ok) {
-        const responseText = await response.text()
+      // Set form target to iframe
+      form.target = 'hidden_iframe'
+      
+      // Submit form
+      form.submit()
+
+      // Show success message after a delay
+      setTimeout(() => {
+        setSubmitStatus('success')
+        setSubmitMessage('Great! You have successfully joined the waitlist. You will hear from us soon about Dishboard.')
+        setIsSubmitting(false)
+        form.reset()
         
-        // Check if email already exists
-        if (responseText.includes('already') || responseText.includes('existe') || responseText.includes('registered')) {
-          setSubmitStatus('duplicate')
-          setSubmitMessage('You are already signed up! We will keep you updated with all Dishboard news.')
-        } else {
-          setSubmitStatus('success')
-          setSubmitMessage('Great! You have successfully joined the waitlist. You will hear from us soon about Dishboard.')
-          form.reset() // Clear the form
-        }
-      } else {
-        setSubmitStatus('error')
-        setSubmitMessage('There was a problem submitting the form. Please try again.')
-      }
+        // Clean up iframe
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe)
+          }
+        }, 1000)
+      }, 2000)
+
     } catch (error) {
       setSubmitStatus('error')
       setSubmitMessage('There was a problem submitting the form. Please try again.')
-    } finally {
       setIsSubmitting(false)
     }
   }
@@ -96,7 +104,7 @@ export function WaitlistFormEN() {
     const googleMapsScript = document.createElement("script")
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     if (apiKey) {
-      googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
+      googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`
       googleMapsScript.async = true
       googleMapsScript.onload = () => {
         if (businessNameInputRef.current && window.google) {
@@ -128,6 +136,7 @@ export function WaitlistFormEN() {
     <form
       id="sib-form"
       method="POST"
+      action="https://c46696aa.sibforms.com/serve/MUIFAPyHxzcRNVhtg8utFAJJk2a7JcXthSQwhP5P82Rh84DmreFXpmDSqO8ujHYLUN7CNOuxqCAmmbe7kH_ebzfBkUsGayGyX2qlSHsVu9K5WqOGVfnhEGh9gmkwLLUUKXWyHqUOw4S2HRqY25swTnUSh2FXpaZDLcf03ecW0jzQS810JxYx5_7iyqMUepkEEDlooTxkNH_2Z0G_"
       data-type="subscription"
       className="space-y-4"
       onSubmit={handleSubmit}
