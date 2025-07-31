@@ -131,7 +131,7 @@ export default function DishboardLandingPageES() {
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-center">¿En qué te gana?</CardTitle>
+                  <CardTitle className="text-center">¿En qué te ganan?</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ComparisonChart />
