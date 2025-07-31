@@ -39,12 +39,36 @@ export function WaitlistForm() {
       const form = e.target as HTMLFormElement
       const formData = new FormData(form)
       
-      // Validate email format
+      // Validate email format and quality
       const email = formData.get('EMAIL') as string
+      
+      // Basic format validation
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
       if (!email || !emailRegex.test(email)) {
         setSubmitStatus('error')
-        setSubmitMessage('Por favor ingresá un email válido.')
+        setSubmitMessage('Por favor ingresá un email válido (ejemplo: usuario@gmail.com)')
+        setIsSubmitting(false)
+        return
+      }
+
+      // Additional quality checks
+      const [localPart, domain] = email.split('@')
+      
+      // Check for obvious fake patterns
+      const suspiciousDomains = ['test.com', 'ejemplo.com', 'fake.com', 'noreal.com', '123.com', 'prueba.com']
+      const fakePatternsRegex = /^(test|fake|ejemplo|prueba|admin|noreply|no-reply)\d*@/i
+      
+      if (suspiciousDomains.includes(domain.toLowerCase()) || fakePatternsRegex.test(email)) {
+        setSubmitStatus('error')
+        setSubmitMessage('Por favor ingresá un email real. Usá tu email personal o de trabajo.')
+        setIsSubmitting(false)
+        return
+      }
+      
+      // Check for consecutive dots or other invalid patterns
+      if (email.includes('..') || email.startsWith('.') || email.endsWith('.') || domain.length < 4) {
+        setSubmitStatus('error')
+        setSubmitMessage('El formato del email no es válido. Verificá que esté bien escrito.')
         setIsSubmitting(false)
         return
       }
@@ -183,8 +207,6 @@ export function WaitlistForm() {
           placeholder="Tu email" 
           required 
           className="w-full"
-          pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
-          title="Por favor ingresá un email válido (ejemplo: usuario@dominio.com)"
         />
       </div>
 
