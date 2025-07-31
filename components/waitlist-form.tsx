@@ -46,8 +46,13 @@ export function WaitlistForm() {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
       if (!email || !emailRegex.test(email)) {
         setSubmitStatus('error')
-        setSubmitMessage('Por favor ingresá un email válido (ejemplo: usuario@gmail.com)')
+        setSubmitMessage('Por favor ingresá un email válido.')
         setIsSubmitting(false)
+        // Reset visual state
+        const emailInput = document.getElementById('EMAIL') as HTMLInputElement
+        if (emailInput) {
+          emailInput.blur()
+        }
         return
       }
 
@@ -62,6 +67,11 @@ export function WaitlistForm() {
         setSubmitStatus('error')
         setSubmitMessage('Por favor ingresá un email real. Usá tu email personal o de trabajo.')
         setIsSubmitting(false)
+        // Reset visual state
+        const emailInput = document.getElementById('EMAIL') as HTMLInputElement
+        if (emailInput) {
+          emailInput.blur()
+        }
         return
       }
       
@@ -70,6 +80,11 @@ export function WaitlistForm() {
         setSubmitStatus('error')
         setSubmitMessage('El formato del email no es válido. Verificá que esté bien escrito.')
         setIsSubmitting(false)
+        // Reset visual state
+        const emailInput = document.getElementById('EMAIL') as HTMLInputElement
+        if (emailInput) {
+          emailInput.blur()
+        }
         return
       }
 
@@ -201,12 +216,13 @@ export function WaitlistForm() {
           className="w-full"
         />
         <Input 
-          type="email" 
+          type="text" 
           id="EMAIL" 
           name="EMAIL" 
           placeholder="Tu email" 
           required 
-          className="w-full"
+          className="w-full focus:ring-0 focus:border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+          autoComplete="email"
         />
       </div>
 

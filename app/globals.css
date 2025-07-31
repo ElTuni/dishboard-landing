@@ -88,3 +88,37 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles to prevent persistent blue color on email inputs */
+@layer components {
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input:focus {
+    box-shadow: none !important;
+    border-color: #d1d5db !important; /* gray-300 */
+    outline: none !important;
+  }
+  
+  input[type="text"]:valid,
+  input[type="email"]:valid,
+  input:valid {
+    box-shadow: none !important;
+    border-color: #d1d5db !important; /* gray-300 */
+  }
+  
+  input[type="text"]:focus:valid,
+  input[type="email"]:focus:valid,
+  input:focus:valid {
+    box-shadow: none !important;
+    border-color: #d1d5db !important; /* gray-300 */
+  }
+
+  /* Remove blue background on autofill */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    box-shadow: 0 0 0 30px white inset !important;
+  }
+}
