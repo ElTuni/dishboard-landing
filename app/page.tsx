@@ -116,7 +116,7 @@ export default function DishboardLandingPageES() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-[#2A3C3F]">No te quedes atrás</h2>
               <p className="max-w-[900px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                ¿Sentís que a tu competencia le va mejor pero no sabés por qué? Dishboard te muestra la foto completa
+                ¿Sentís que a tu competencia le va mejor pero no sabés por qué?<br/> Dishboard te muestra la foto completa
                 para que reacciones rápido y tomes el control.
               </p>
             </div>
