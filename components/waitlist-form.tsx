@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 // Declare global types
 declare global {
@@ -26,26 +26,56 @@ declare global {
 
 export function WaitlistForm() {
   const businessNameInputRef = useRef<HTMLInputElement>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'duplicate'>('idle')
+  const [submitMessage, setSubmitMessage] = useState('')
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (window.grecaptcha) {
-      window.grecaptcha.ready(() => {
-        window.grecaptcha.execute('6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN', { action: 'submit' }).then((token: string) => {
-          const form = e.target as HTMLFormElement
-          const tokenInput = form.querySelector('#g-recaptcha-response') as HTMLInputElement
-          if (tokenInput) {
-            tokenInput.value = token
-          }
-          // Submit the form
-          form.submit()
-        })
-      })
-    } else {
-      // If reCAPTCHA is not loaded, submit without token
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
+
+    try {
       const form = e.target as HTMLFormElement
-      form.submit()
+      const formData = new FormData(form)
+
+      if (window.grecaptcha) {
+        await new Promise<void>((resolve) => {
+          window.grecaptcha.ready(() => {
+            window.grecaptcha.execute('6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN', { action: 'submit' }).then((token: string) => {
+              formData.set('g-recaptcha-response', token)
+              resolve()
+            })
+          })
+        })
+      }
+
+      const response = await fetch('https://c46696aa.sibforms.com/serve/MUIFAPyHxzcRNVhtg8utFAJJk2a7JcXthSQwhP5P82Rh84DmreFXpmDSqO8ujHYLUN7CNOuxqCAmmbe7kH_ebzfBkUsGayGyX2qlSHsVu9K5WqOGVfnhEGh9gmkwLLUUKXWyHqUOw4S2HRqY25swTnUSh2FXpaZDLcf03ecW0jzQS810JxYx5_7iyqMUepkEEDlooTxkNH_2Z0G_', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const responseText = await response.text()
+        
+        // Check if email already exists
+        if (responseText.includes('already') || responseText.includes('existe') || responseText.includes('registered')) {
+          setSubmitStatus('duplicate')
+          setSubmitMessage('¡Ya te anotaste! Te estaremos notificando sobre todas las novedades de Dishboard.')
+        } else {
+          setSubmitStatus('success')
+          setSubmitMessage('¡Genial! Te anotaste exitosamente. Pronto tendrás noticias sobre Dishboard.')
+          form.reset() // Clear the form
+        }
+      } else {
+        setSubmitStatus('error')
+        setSubmitMessage('Hubo un problema al enviar el formulario. Por favor, intentá de nuevo.')
+      }
+    } catch (error) {
+      setSubmitStatus('error')
+      setSubmitMessage('Hubo un problema al enviar el formulario. Por favor, intentá de nuevo.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -98,7 +128,6 @@ export function WaitlistForm() {
     <form
       id="sib-form"
       method="POST"
-      action="https://c46696aa.sibforms.com/serve/MUIFAFA5kSKMBVKQDEaYgcm1W7S6DNhi0xGy4z0ot2rdegnuTtHnlq9HLEYoAWPqAunDTz5WKLgJ_SWV0jXzg2I5PMaKo9Es7ItbwvMoAp6FCmmCdUmaXmhn8XLoeHiWGIN4GaTzHVHu_o28aBEZ4GoaZMOsZuyCng0-zBLrMKRhgFtijOJga37d17XBuvVWQ3oN8EIhVPNkV8md"
       data-type="subscription"
       className="space-y-4"
       onSubmit={handleSubmit}
@@ -117,9 +146,26 @@ export function WaitlistForm() {
         <Input type="email" id="EMAIL" name="EMAIL" placeholder="Tu email" required className="w-full" />
       </div>
 
-      <Button type="submit" className="w-full bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2]">
-        Apuntarme gratis
+      <Button 
+        type="submit" 
+        className="w-full bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2]"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? 'Enviando...' : 'Apuntarme gratis'}
       </Button>
+
+      {/* Status Messages */}
+      {submitStatus !== 'idle' && (
+        <div className={`p-4 rounded-md text-sm ${
+          submitStatus === 'success' 
+            ? 'bg-green-50 text-green-800 border border-green-200' 
+            : submitStatus === 'duplicate'
+            ? 'bg-blue-50 text-blue-800 border border-blue-200'
+            : 'bg-red-50 text-red-800 border border-red-200'
+        }`}>
+          {submitMessage}
+        </div>
+      )}
 
       {/* Honeypot anti-spam */}
       <input
