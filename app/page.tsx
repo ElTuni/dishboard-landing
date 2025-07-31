@@ -83,7 +83,7 @@ export default function DishboardLandingPageES() {
                     para mejorar tu local.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row min-[400px]:px-2 min-[441px]:px-0">
+                <div className="flex flex-col gap-2 min-[400px]:flex-row min-[400px]:justify-center min-[500px]:justify-start">
                   <Link href="#waitlist">
                     <Button size="lg" className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] w-full">
                       Unite a la lista de espera
