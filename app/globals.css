@@ -122,8 +122,27 @@
     box-shadow: 0 0 0 30px white inset !important;
   }
 
-  /* Hide reCAPTCHA badge */
-  .grecaptcha-badge {
+  /* Hide reCAPTCHA badge - multiple selectors to ensure it works */
+  .grecaptcha-badge,
+  div[data-style*="bottom:right"],
+  div[style*="bottom: 14px"],
+  div[style*="right: 14px"],
+  iframe[src*="recaptcha/api2/anchor"],
+  iframe[title*="reCAPTCHA"] {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    top: -9999px !important;
+  }
+  
+  /* Alternative approach - hide any element that contains reCAPTCHA */
+  [class*="recaptcha"],
+  [id*="recaptcha"],
+  div[style*="width: 256px"][style*="height: 60px"] {
+    display: none !important;
+    visibility: hidden !important;
   }
 }
