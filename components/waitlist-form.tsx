@@ -4,13 +4,55 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useEffect, useRef } from "react"
 
+// Declare global types
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => void
+      execute: (siteKey: string, options: { action: string }) => Promise<string>
+    }
+    google: {
+      maps: {
+        places: {
+          Autocomplete: new (input: HTMLInputElement, options?: any) => {
+            addListener: (event: string, callback: () => void) => void
+            getPlace: () => { place_id?: string; name?: string; formatted_address?: string }
+          }
+        }
+      }
+    }
+  }
+}
+
 export function WaitlistForm() {
   const businessNameInputRef = useRef<HTMLInputElement>(null)
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (window.grecaptcha) {
+      window.grecaptcha.ready(() => {
+        window.grecaptcha.execute('6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN', { action: 'submit' }).then((token: string) => {
+          const form = e.target as HTMLFormElement
+          const tokenInput = form.querySelector('#g-recaptcha-response') as HTMLInputElement
+          if (tokenInput) {
+            tokenInput.value = token
+          }
+          // Submit the form
+          form.submit()
+        })
+      })
+    } else {
+      // If reCAPTCHA is not loaded, submit without token
+      const form = e.target as HTMLFormElement
+      form.submit()
+    }
+  }
+
   useEffect(() => {
-    // Load reCAPTCHA script
+    // Load reCAPTCHA v3 script
     const recaptchaScript = document.createElement("script")
-    recaptchaScript.src = "https://www.google.com/recaptcha/api.js?hl=es"
+    recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN"
     recaptchaScript.async = true
     document.head.appendChild(recaptchaScript)
 
@@ -60,6 +102,7 @@ export function WaitlistForm() {
       action="https://c46696aa.sibforms.com/serve/MUIFAFA5kSKMBVKQDEaYgcm1W7S6DNhi0xGy4z0ot2rdegnuTtHnlq9HLEYoAWPqAunDTz5WKLgJ_SWV0jXzg2I5PMaKo9Es7ItbwvMoAp6FCmmCdUmaXmhn8XLoeHiWGIN4GaTzHVHu_o28aBEZ4GoaZMOsZuyCng0-zBLrMKRhgFtijOJga37d17XBuvVWQ3oN8EIhVPNkV8md"
       data-type="subscription"
       className="space-y-4"
+      onSubmit={handleSubmit}
     >
       <div className="space-y-3">
         <Input
@@ -95,8 +138,8 @@ export function WaitlistForm() {
       {/* Idioma */}
       <input type="hidden" name="locale" value="es" readOnly />
 
-      {/* reCAPTCHA */}
-      <div className="g-recaptcha" data-sitekey="6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN"></div>
+      {/* reCAPTCHA v3 - Hidden field for token */}
+      <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response" />
     </form>
   )
 }
