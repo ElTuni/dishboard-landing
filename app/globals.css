@@ -91,35 +91,101 @@
 
 /* Custom styles to prevent persistent blue color on email inputs */
 @layer components {
-  input[type="text"]:focus,
-  input[type="email"]:focus,
-  input:focus {
+  /* Comprehensive input state reset - covers all possible blue color scenarios */
+  input[type="text"],
+  input[type="email"],
+  input,
+  #EMAIL,
+  #NOMBRE {
     box-shadow: none !important;
     border-color: #d1d5db !important; /* gray-300 */
     outline: none !important;
+    background-color: white !important;
+  }
+  
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input:focus,
+  input[type="text"]:active,
+  input[type="email"]:active,
+  input:active,
+  input[type="text"]:focus-visible,
+  input[type="email"]:focus-visible,
+  input:focus-visible,
+  input[type="text"]:focus-within,
+  input[type="email"]:focus-within,
+  input:focus-within,
+  #EMAIL:focus,
+  #EMAIL:active,
+  #EMAIL:focus-visible,
+  #NOMBRE:focus,
+  #NOMBRE:active,
+  #NOMBRE:focus-visible {
+    box-shadow: none !important;
+    border-color: #d1d5db !important; /* gray-300 */
+    outline: none !important;
+    background-color: white !important;
   }
   
   input[type="text"]:valid,
   input[type="email"]:valid,
-  input:valid {
+  input:valid,
+  input[type="text"]:user-valid,
+  input[type="email"]:user-valid,
+  input:user-valid,
+  input[type="text"]:invalid,
+  input[type="email"]:invalid,
+  input:invalid,
+  input[type="text"]:user-invalid,
+  input[type="email"]:user-invalid,
+  input:user-invalid,
+  #EMAIL:valid,
+  #EMAIL:user-valid,
+  #EMAIL:invalid,
+  #EMAIL:user-invalid,
+  #NOMBRE:valid,
+  #NOMBRE:user-valid,
+  #NOMBRE:invalid,
+  #NOMBRE:user-invalid {
     box-shadow: none !important;
     border-color: #d1d5db !important; /* gray-300 */
+    background-color: white !important;
   }
   
   input[type="text"]:focus:valid,
   input[type="email"]:focus:valid,
-  input:focus:valid {
+  input:focus:valid,
+  input[type="text"]:focus:invalid,
+  input[type="email"]:focus:invalid,
+  input:focus:invalid,
+  #EMAIL:focus:valid,
+  #EMAIL:focus:invalid,
+  #NOMBRE:focus:valid,
+  #NOMBRE:focus:invalid {
     box-shadow: none !important;
     border-color: #d1d5db !important; /* gray-300 */
+    background-color: white !important;
   }
 
-  /* Remove blue background on autofill */
+  /* Remove blue background on autofill - enhanced */
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
-  input:-webkit-autofill:active {
+  input:-webkit-autofill:active,
+  input:-webkit-autofill:focus-visible,
+  #EMAIL:-webkit-autofill,
+  #EMAIL:-webkit-autofill:hover,
+  #EMAIL:-webkit-autofill:focus,
+  #EMAIL:-webkit-autofill:active,
+  #NOMBRE:-webkit-autofill,
+  #NOMBRE:-webkit-autofill:hover,
+  #NOMBRE:-webkit-autofill:focus,
+  #NOMBRE:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px white inset !important;
     box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: black !important;
+    border-color: #d1d5db !important;
+    background-color: white !important;
   }
 
   /* Hide reCAPTCHA badge - multiple selectors to ensure it works */

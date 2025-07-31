@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent, SheetTitle } from "@/components/ui/sheet"
+import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { Menu, LayoutDashboard, Lightbulb, Users, TrendingUp, MapPin, Instagram } from "lucide-react"
 import { EvolutionChartEN } from "@/components/line-chart-en"
 import { ComparisonChartEN } from "@/components/bar-chart-en"
@@ -44,6 +44,7 @@ export default function DishboardLandingPageEN() {
             </SheetTrigger>
             <SheetContent side="right">
               <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+              <SheetDescription className="sr-only">Navigate through Dishboard sections and change language</SheetDescription>
               <nav className="grid gap-6 text-lg font-medium">
                 <Link href="/en" className="flex items-center gap-2 text-lg font-semibold" prefetch={false}>
                   <Image src="/logo.png" alt="Dishboard Logo" width={150} height={40} className="object-contain" />
