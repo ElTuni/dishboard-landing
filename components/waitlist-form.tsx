@@ -72,14 +72,13 @@ export function WaitlistForm() {
         if (businessNameInputRef.current && window.google) {
           const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
             types: ["establishment"],
-            fields: ["place_id", "name", "formatted_address"],
+            fields: ["name"],
           })
           autocomplete.addListener("place_changed", () => {
             const place = autocomplete.getPlace()
-            if (place && place.name && place.formatted_address && place.place_id) {
-              ;(document.getElementById("BUSINESS_NAME") as HTMLInputElement).value = place.name
-              ;(document.getElementById("BUSINESS_ADDRESS") as HTMLInputElement).value = place.formatted_address
-              ;(document.getElementById("PLACE_ID") as HTMLInputElement).value = place.place_id
+            if (place && place.name) {
+              // El campo ya tiene el nombre correcto, Google Places solo ayuda con el autocompletado
+              businessNameInputRef.current!.value = place.name
             }
           })
         }
@@ -108,9 +107,10 @@ export function WaitlistForm() {
         <Input
           ref={businessNameInputRef}
           type="text"
-          id="BUSINESS_NAME_SEARCH"
-          name="BUSINESS_NAME_SEARCH"
+          id="NOMBRE"
+          name="NOMBRE"
           placeholder="Nombre de tu local"
+          maxLength={200}
           required
           className="w-full"
         />
@@ -120,11 +120,6 @@ export function WaitlistForm() {
       <Button type="submit" className="w-full bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2]">
         Apuntarme gratis
       </Button>
-
-      {/* Hidden fields for Brevo */}
-      <input type="hidden" id="BUSINESS_NAME" name="BUSINESS_NAME" />
-      <input type="hidden" id="BUSINESS_ADDRESS" name="BUSINESS_ADDRESS" />
-      <input type="hidden" id="PLACE_ID" name="PLACE_ID" />
 
       {/* Honeypot anti-spam */}
       <input
