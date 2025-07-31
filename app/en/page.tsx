@@ -270,7 +270,7 @@ export default function DishboardLandingPageEN() {
             <div className="mx-auto w-full max-w-sm space-y-2">
               <WaitlistFormEN />
               <p className="text-xs text-gray-500">
-                It's free. No strings attached. We use Google Places to autocomplete your business name.
+                It's free. No strings attached. This site is protected by reCAPTCHA and Google policies apply.
               </p>
             </div>
           </div>
@@ -280,10 +280,10 @@ export default function DishboardLandingPageEN() {
         <div className="max-w-7xl mx-auto flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6">
         <p className="text-xs text-gray-500">&copy; 2025 Dishboard. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link href="#" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-            Terms & Conditions
+          <Link href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
+            Terms
           </Link>
-          <Link href="#" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
+          <Link href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
             Privacy
           </Link>
         </nav>
