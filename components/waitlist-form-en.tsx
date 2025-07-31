@@ -163,26 +163,54 @@ export function WaitlistFormEN() {
     if (apiKey) {
       googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`
       googleMapsScript.async = true
+      
+      // DEBUG: Log script loading
+      console.log('🗺️ Loading Google Maps script...')
       googleMapsScript.onload = () => {
+        console.log('🗺️ Google Maps script loaded successfully')
+        console.log('🗺️ window.google available:', !!window.google)
+        console.log('🗺️ window.google.maps available:', !!(window.google && window.google.maps))
+        console.log('🗺️ window.google.maps.places available:', !!(window.google && window.google.maps && window.google.maps.places))
+        console.log('🗺️ businessNameInputRef available:', !!businessNameInputRef.current)
+        
         if (businessNameInputRef.current && window.google && window.google.maps && window.google.maps.places) {
           try {
+            console.log('🗺️ Initializing Google Places Autocomplete...')
             const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
               types: ["establishment"],
               fields: ["name"],
             })
+            console.log('🗺️ Autocomplete initialized successfully!')
+            
             autocomplete.addListener("place_changed", () => {
+              console.log('🗺️ Place changed event triggered')
               const place = autocomplete.getPlace()
+              console.log('🗺️ Selected place:', place)
               if (place && place.name) {
-                // El campo ya tiene el nombre correcto, Google Places solo ayuda con el autocompletado
                 businessNameInputRef.current!.value = place.name
+                console.log('🗺️ Set business name to:', place.name)
               }
             })
           } catch (error) {
-            console.warn('Google Places Autocomplete could not be initialized:', error)
+            console.error('❌ Google Places Autocomplete initialization failed:', error)
           }
+        } else {
+          console.warn('❌ Missing dependencies for Google Places:', {
+            input: !!businessNameInputRef.current,
+            google: !!window.google,
+            maps: !!(window.google && window.google.maps),
+            places: !!(window.google && window.google.maps && window.google.maps.places)
+          })
         }
       }
+      
+      googleMapsScript.onerror = (error) => {
+        console.error('❌ Google Maps script failed to load:', error)
+      }
+      
       document.head.appendChild(googleMapsScript)
+    } else {
+      console.error('❌ No Google Maps API key found')
     }
 
     return () => {
