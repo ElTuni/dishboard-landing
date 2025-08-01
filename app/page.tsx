@@ -36,7 +36,9 @@ export default function DishboardLandingPageES() {
             <Link href="/en">
               <Button variant="ghost">EN</Button>
             </Link>
-            <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] hidden sm:flex">Unite a la lista</Button>
+            <Link href="#waitlist">
+              <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] hidden sm:flex">Unite a la lista</Button>
+            </Link>
           </div>
           <Sheet>
             <SheetTrigger asChild>
@@ -60,7 +62,9 @@ export default function DishboardLandingPageES() {
                   Integraciones
                 </Link>
                 <div className="flex flex-col gap-4 mt-4">
-                  <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2]">Unirse a la lista</Button>
+                  <Link href="#waitlist">
+                    <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2]">Unirse a la lista</Button>
+                  </Link>
                   <Link href="/en" className="text-muted-foreground hover:text-foreground">
                     EN - English version
                   </Link>
