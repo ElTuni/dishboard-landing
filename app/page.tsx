@@ -276,7 +276,7 @@ export default function DishboardLandingPageES() {
               </p>
             </div>
             <div className="mx-auto w-full max-w-sm space-y-2">
-              <WaitlistForm />
+              <WaitlistForm locale="es" />
               <p className="text-xs text-gray-500">
                 Gratis y sin vueltas. Este sitio está protegido por reCAPTCHA y se aplican las políticas de Google.
               </p>

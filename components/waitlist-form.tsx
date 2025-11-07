@@ -27,7 +27,55 @@ interface AutocompletePrediction {
   user_ratings_total?: number
 }
 
-export function WaitlistForm() {
+interface Translations {
+  placeNamePlaceholder: string
+  emailPlaceholder: string
+  submitButton: string
+  submittingButton: string
+  successMessage: string
+  errorMessage: string
+  invalidEmail: string
+  fakeEmail: string
+  invalidEmailFormat: string
+  reviews: string
+  suggestionsLabel: string
+}
+
+const translations: Record<'es' | 'en', Translations> = {
+  es: {
+    placeNamePlaceholder: "Nombre de tu local",
+    emailPlaceholder: "Tu email",
+    submitButton: "Apuntarme gratis",
+    submittingButton: "Enviando...",
+    successMessage: "¡Genial! Te anotaste exitosamente.\nPronto tendrás noticias sobre Dishboard.",
+    errorMessage: "Hubo un problema al enviar el formulario. Por favor, intentá de nuevo.",
+    invalidEmail: "Por favor ingresá un email válido.",
+    fakeEmail: "Por favor ingresá un email real. Usá tu email personal o de trabajo.",
+    invalidEmailFormat: "El formato del email no es válido. Verificá que esté bien escrito.",
+    reviews: "reseñas",
+    suggestionsLabel: "Sugerencias de locales gastronómicos",
+  },
+  en: {
+    placeNamePlaceholder: "Your place's name",
+    emailPlaceholder: "Your email",
+    submitButton: "Join for Free",
+    submittingButton: "Submitting...",
+    successMessage: "Great! You have successfully joined the waitlist.\nYou will hear from us soon about Dishboard.",
+    errorMessage: "There was a problem submitting the form. Please try again.",
+    invalidEmail: "Please enter a valid email address.",
+    fakeEmail: "Please enter a real email address. Use your personal or work email.",
+    invalidEmailFormat: "The email format is invalid. Please check that it's written correctly.",
+    reviews: "reviews",
+    suggestionsLabel: "Restaurant suggestions",
+  },
+}
+
+interface WaitlistFormProps {
+  locale?: 'es' | 'en'
+}
+
+export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
+  const t = translations[locale]
   const businessNameInputRef = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -58,7 +106,7 @@ export function WaitlistForm() {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
       if (!email || !emailRegex.test(email)) {
         setSubmitStatus('error')
-        setSubmitMessage('Por favor ingresá un email válido.')
+        setSubmitMessage(t.invalidEmail)
         setIsSubmitting(false)
         // Reset visual state
         const emailInput = document.getElementById('EMAIL') as HTMLInputElement
@@ -72,12 +120,16 @@ export function WaitlistForm() {
       const [localPart, domain] = email.split('@')
       
       // Check for obvious fake patterns
-      const suspiciousDomains = ['test.com', 'ejemplo.com', 'fake.com', 'noreal.com', '123.com', 'prueba.com']
-      const fakePatternsRegex = /^(test|fake|ejemplo|prueba|admin|noreply|no-reply)\d*@/i
+      const suspiciousDomains = locale === 'es' 
+        ? ['test.com', 'ejemplo.com', 'fake.com', 'noreal.com', '123.com', 'prueba.com']
+        : ['test.com', 'example.com', 'fake.com', 'noreal.com', '123.com', 'demo.com']
+      const fakePatternsRegex = locale === 'es'
+        ? /^(test|fake|ejemplo|prueba|admin|noreply|no-reply)\d*@/i
+        : /^(test|fake|example|demo|admin|noreply|no-reply)\d*@/i
       
       if (suspiciousDomains.includes(domain.toLowerCase()) || fakePatternsRegex.test(email)) {
         setSubmitStatus('error')
-        setSubmitMessage('Por favor ingresá un email real. Usá tu email personal o de trabajo.')
+        setSubmitMessage(t.fakeEmail)
         setIsSubmitting(false)
         // Reset visual state
         const emailInput = document.getElementById('EMAIL') as HTMLInputElement
@@ -90,7 +142,7 @@ export function WaitlistForm() {
       // Check for consecutive dots or other invalid patterns
       if (email.includes('..') || email.startsWith('.') || email.endsWith('.') || domain.length < 4) {
         setSubmitStatus('error')
-        setSubmitMessage('El formato del email no es válido. Verificá que esté bien escrito.')
+        setSubmitMessage(t.invalidEmailFormat)
         setIsSubmitting(false)
         // Reset visual state
         const emailInput = document.getElementById('EMAIL') as HTMLInputElement
@@ -130,7 +182,7 @@ export function WaitlistForm() {
       // Show success message after a delay
       setTimeout(() => {
         setSubmitStatus('success')
-        setSubmitMessage('¡Genial! Te anotaste exitosamente. Pronto tendrás noticias sobre Dishboard.')
+        setSubmitMessage(t.successMessage)
         setIsSubmitting(false)
         setBusinessName('')
         form.reset()
@@ -145,7 +197,7 @@ export function WaitlistForm() {
 
     } catch (error) {
       setSubmitStatus('error')
-      setSubmitMessage('Hubo un problema al enviar el formulario. Por favor, intentá de nuevo.')
+      setSubmitMessage(t.errorMessage)
       setIsSubmitting(false)
     }
   }
@@ -390,7 +442,7 @@ export function WaitlistForm() {
             type="text"
             id="NOMBRE"
             name="NOMBRE"
-            placeholder="Nombre de tu local"
+            placeholder={t.placeNamePlaceholder}
             maxLength={200}
             required
             className="w-full pr-10"
@@ -414,7 +466,7 @@ export function WaitlistForm() {
               className="absolute top-full left-0 right-0 mt-2 z-50 max-h-60 overflow-y-auto border-2 border-emerald-200 shadow-lg"
               role="listbox"
               id="suggestions-list"
-              aria-label="Sugerencias de locales gastronómicos"
+              aria-label={t.suggestionsLabel}
             >
               {suggestions.map((suggestion, index) => (
                 <button
@@ -456,7 +508,7 @@ export function WaitlistForm() {
                         </p>
                         {suggestion.user_ratings_total && (
                           <span className="text-xs text-gray-400 ml-2 flex-shrink-0">
-                            ({suggestion.user_ratings_total} reseñas)
+                            ({suggestion.user_ratings_total} {t.reviews})
                           </span>
                         )}
                       </div>
@@ -471,7 +523,7 @@ export function WaitlistForm() {
           type="text" 
           id="EMAIL" 
           name="EMAIL" 
-          placeholder="Tu email" 
+          placeholder={t.emailPlaceholder}
           required 
           className="w-full focus:ring-0 focus:border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
           autoComplete="email"
@@ -483,12 +535,12 @@ export function WaitlistForm() {
         className="w-full bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2]"
         disabled={isSubmitting}
       >
-        {isSubmitting ? 'Enviando...' : 'Apuntarme gratis'}
+        {isSubmitting ? t.submittingButton : t.submitButton}
       </Button>
 
       {/* Status Messages */}
       {submitStatus !== 'idle' && (
-        <div className={`p-4 rounded-md text-sm ${
+        <div className={`p-4 rounded-md text-sm whitespace-pre-line ${
           submitStatus === 'success' 
             ? 'bg-green-50 text-green-800 border border-green-200' 
             : submitStatus === 'duplicate'
@@ -509,7 +561,7 @@ export function WaitlistForm() {
       />
 
       {/* Idioma */}
-      <input type="hidden" name="locale" value="es" readOnly />
+      <input type="hidden" name="locale" value={locale} readOnly />
 
       {/* reCAPTCHA v3 - Hidden field for token */}
       <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response" />

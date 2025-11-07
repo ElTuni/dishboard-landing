@@ -6,7 +6,7 @@ import { Menu, LayoutDashboard, Lightbulb, Users, TrendingUp, MapPin, Instagram 
 import { EvolutionChartEN } from "@/components/line-chart-en"
 import { ComparisonChartEN } from "@/components/bar-chart-en"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { WaitlistFormEN } from "@/components/waitlist-form-en"
+import { WaitlistForm } from "@/components/waitlist-form"
 
 export default function DishboardLandingPageEN() {
   return (
@@ -270,7 +270,7 @@ export default function DishboardLandingPageEN() {
               </p>
             </div>
             <div className="mx-auto w-full max-w-sm space-y-2">
-              <WaitlistFormEN />
+              <WaitlistForm locale="en" />
               <p className="text-xs text-gray-500">
                 It's free. No strings attached. This site is protected by reCAPTCHA and Google policies apply.
               </p>
