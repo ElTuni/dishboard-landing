@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Card } from "@/components/ui/card"
+import { MapPin, Star, Loader2 } from "lucide-react"
 import { useEffect, useRef, useState, useCallback } from "react"
 
 // Declare global types
@@ -21,19 +23,24 @@ interface AutocompletePrediction {
     main_text: string
     secondary_text?: string
   }
+  rating?: number
+  user_ratings_total?: number
 }
 
 export function WaitlistForm() {
   const businessNameInputRef = useRef<HTMLInputElement>(null)
+  const suggestionsRef = useRef<HTMLDivElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'duplicate'>('idle')
   const [submitMessage, setSubmitMessage] = useState('')
+  const [businessName, setBusinessName] = useState('')
   const [suggestions, setSuggestions] = useState<AutocompletePrediction[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [sessionToken, setSessionToken] = useState<string>(() => 
     Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
   )
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -125,6 +132,7 @@ export function WaitlistForm() {
         setSubmitStatus('success')
         setSubmitMessage('¡Genial! Te anotaste exitosamente. Pronto tendrás noticias sobre Dishboard.')
         setIsSubmitting(false)
+        setBusinessName('')
         form.reset()
         
         // Clean up iframe
@@ -147,8 +155,12 @@ export function WaitlistForm() {
     if (!input || input.length < 2) {
       setSuggestions([])
       setShowSuggestions(false)
+      setLoadingSuggestions(false)
       return
     }
+
+    setLoadingSuggestions(true)
+    setShowSuggestions(false) // Hide dropdown while loading
 
     try {
       const response = await fetch('/api/places/autocomplete', {
@@ -168,23 +180,64 @@ export function WaitlistForm() {
 
       const data = await response.json()
       
-      if (data.status === 'OK' && data.predictions) {
-        setSuggestions(data.predictions)
+      if (data.status === 'OK' && data.predictions && data.predictions.length > 0) {
+        // Fetch details (rating and reviews) for suggestions in parallel
+        // Only fetch for first 5 to limit API calls, but show all suggestions
+        const detailsPromises = data.predictions.slice(0, 5).map(async (prediction: AutocompletePrediction) => {
+          try {
+            const detailsResponse = await fetch('/api/places/details', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                placeId: prediction.place_id,
+                sessionToken,
+              }),
+            })
+            
+            if (detailsResponse.ok) {
+              const detailsData = await detailsResponse.json()
+              if (detailsData.result) {
+                return {
+                  ...prediction,
+                  rating: detailsData.result.rating,
+                  user_ratings_total: detailsData.result.user_ratings_total,
+                }
+              }
+            }
+          } catch (error) {
+            console.warn('Error fetching place details:', error)
+          }
+          return prediction
+        })
+        
+        // Wait for all details to load before showing dropdown
+        const suggestionsWithDetails = await Promise.all(detailsPromises)
+        // Keep other suggestions that weren't in the first 5 (they won't have ratings initially)
+        const remainingSuggestions = data.predictions.slice(5)
+        
+        // Only show dropdown once we have the details loaded
+        setSuggestions([...suggestionsWithDetails, ...remainingSuggestions])
         setShowSuggestions(true)
+        setLoadingSuggestions(false)
       } else {
         setSuggestions([])
         setShowSuggestions(false)
+        setLoadingSuggestions(false)
       }
     } catch (error) {
       console.error('Error fetching suggestions:', error)
       setSuggestions([])
       setShowSuggestions(false)
+      setLoadingSuggestions(false)
     }
   }, [sessionToken])
 
   // Handle input change with debounce
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
+    setBusinessName(value)
     
     // Clear previous timer
     if (debounceTimerRef.current) {
@@ -199,13 +252,19 @@ export function WaitlistForm() {
 
   // Handle suggestion selection
   const handleSelectSuggestion = useCallback(async (prediction: AutocompletePrediction) => {
-    if (!businessNameInputRef.current) return
-
     // Immediately set the value using main_text (fastest and most reliable)
     const mainText = prediction.structured_formatting?.main_text || prediction.description.split(',')[0] || prediction.description
     
-    // Set the value immediately so user sees it right away
-    businessNameInputRef.current.value = mainText
+    // Set the value in state immediately so user sees it right away
+    setBusinessName(mainText)
+    
+    // Also update the ref for form submission
+    if (businessNameInputRef.current) {
+      businessNameInputRef.current.value = mainText
+      // Trigger input event to ensure form recognizes the change
+      const event = new Event('input', { bubbles: true })
+      businessNameInputRef.current.dispatchEvent(event)
+    }
     
     // Hide suggestions immediately
     setShowSuggestions(false)
@@ -227,8 +286,13 @@ export function WaitlistForm() {
       if (response.ok) {
         const data = await response.json()
         // Update with the official name if available and different
-        if (data.result?.name && businessNameInputRef.current) {
-          businessNameInputRef.current.value = data.result.name
+        if (data.result?.name) {
+          setBusinessName(data.result.name)
+          if (businessNameInputRef.current) {
+            businessNameInputRef.current.value = data.result.name
+            const event = new Event('input', { bubbles: true })
+            businessNameInputRef.current.dispatchEvent(event)
+          }
         }
       }
     } catch (error) {
@@ -238,7 +302,26 @@ export function WaitlistForm() {
 
     // Generate new session token for next search
     setSessionToken(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15))
+    
+    // Move focus to email input
+    setTimeout(() => {
+      const emailInput = document.getElementById('EMAIL') as HTMLInputElement
+      if (emailInput) {
+        emailInput.focus()
+      }
+    }, 100)
   }, [sessionToken])
+
+  // Handle keyboard navigation in suggestions
+  const handleSuggestionKeyDown = useCallback((e: React.KeyboardEvent, prediction: AutocompletePrediction, index: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleSelectSuggestion(prediction)
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false)
+      businessNameInputRef.current?.focus()
+    }
+  }, [handleSelectSuggestion])
 
   // Load reCAPTCHA script
   useEffect(() => {
@@ -274,7 +357,13 @@ export function WaitlistForm() {
   // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (businessNameInputRef.current && !businessNameInputRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+      if (
+        businessNameInputRef.current && 
+        !businessNameInputRef.current.contains(target) &&
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(target)
+      ) {
         setShowSuggestions(false)
       }
     }
@@ -304,7 +393,8 @@ export function WaitlistForm() {
             placeholder="Nombre de tu local"
             maxLength={200}
             required
-            className="w-full"
+            className="w-full pr-10"
+            value={businessName}
             onChange={handleInputChange}
             onFocus={(e) => {
               if (e.target.value.length >= 2 && suggestions.length > 0) {
@@ -313,33 +403,68 @@ export function WaitlistForm() {
             }}
             autoComplete="off"
           />
+          {loadingSuggestions && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+            </div>
+          )}
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
-              {suggestions.map((prediction) => (
+            <Card 
+              ref={suggestionsRef}
+              className="absolute top-full left-0 right-0 mt-2 z-50 max-h-60 overflow-y-auto border-2 border-emerald-200 shadow-lg"
+              role="listbox"
+              id="suggestions-list"
+              aria-label="Sugerencias de locales gastronómicos"
+            >
+              {suggestions.map((suggestion, index) => (
                 <button
-                  key={prediction.place_id}
-                  type="button"
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                  key={suggestion.place_id}
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    handleSelectSuggestion(prediction)
+                    handleSelectSuggestion(suggestion)
                   }}
+                  className="w-full p-3 text-left hover:bg-emerald-50 border-b border-gray-100 last:border-b-0 transition-all duration-300 ease-in-out focus:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 group"
+                  role="option"
+                  aria-selected="false"
+                  tabIndex={0}
+                  onKeyDown={(e) => handleSuggestionKeyDown(e, suggestion, index)}
                   onMouseDown={(e) => {
                     e.preventDefault() // Prevent input from losing focus
                   }}
+                  type="button"
                 >
-                  <div className="font-medium text-gray-900">
-                    {prediction.structured_formatting?.main_text || prediction.description}
-                  </div>
-                  {prediction.structured_formatting?.secondary_text && (
-                    <div className="text-sm text-gray-500">
-                      {prediction.structured_formatting.secondary_text}
+                  <div className="flex items-center space-x-3">
+                    <MapPin className="h-5 w-5 text-gray-400 group-hover:text-emerald-500 flex-shrink-0 transition-colors duration-200" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-gray-900 truncate">
+                          {suggestion.structured_formatting?.main_text || suggestion.description.split(',')[0]}
+                        </p>
+                        {suggestion.rating && (
+                          <div className="flex items-center space-x-1 ml-2 flex-shrink-0">
+                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                            <span className="text-sm font-medium text-gray-900">
+                              {suggestion.rating.toFixed(1)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-sm text-gray-500 truncate">
+                          {suggestion.structured_formatting?.secondary_text || suggestion.description.split(',').slice(1).join(',').trim()}
+                        </p>
+                        {suggestion.user_ratings_total && (
+                          <span className="text-xs text-gray-400 ml-2 flex-shrink-0">
+                            ({suggestion.user_ratings_total} reseñas)
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </button>
               ))}
-            </div>
+            </Card>
           )}
         </div>
         <Input 

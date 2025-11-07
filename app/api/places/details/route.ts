@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const params = new URLSearchParams({
       place_id: placeId,
       key: apiKey,
-      fields: "name,formatted_address,place_id",
+      fields: "name,formatted_address,place_id,rating,user_ratings_total",
     })
 
     if (sessionToken) {
