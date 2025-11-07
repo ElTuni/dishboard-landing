@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 
 // Declare global types
 declare global {
@@ -11,16 +11,15 @@ declare global {
       ready: (callback: () => void) => void
       execute: (siteKey: string, options: { action: string }) => Promise<string>
     }
-    google: {
-      maps: {
-        places: {
-          Autocomplete: new (input: HTMLInputElement, options?: any) => {
-            addListener: (event: string, callback: () => void) => void
-            getPlace: () => { place_id?: string; name?: string; formatted_address?: string }
-          }
-        }
-      }
-    }
+  }
+}
+
+interface AutocompletePrediction {
+  place_id: string
+  description: string
+  structured_formatting?: {
+    main_text: string
+    secondary_text?: string
   }
 }
 
@@ -29,6 +28,12 @@ export function WaitlistForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'duplicate'>('idle')
   const [submitMessage, setSubmitMessage] = useState('')
+  const [suggestions, setSuggestions] = useState<AutocompletePrediction[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [sessionToken, setSessionToken] = useState<string>(() => 
+    Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+  )
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -137,86 +142,143 @@ export function WaitlistForm() {
     }
   }
 
-  useEffect(() => {
-    // Load reCAPTCHA v3 script (only if not already loaded)
-    if (!document.querySelector('script[src*="recaptcha/api.js"]')) {
-      const recaptchaScript = document.createElement("script")
-      recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN"
-      recaptchaScript.async = true
-      
-      // Add error handler to prevent uncaught errors
-      recaptchaScript.onerror = (error) => {
-        console.warn('reCAPTCHA script failed to load:', error)
-      }
-      
-      document.head.appendChild(recaptchaScript)
+  // Fetch autocomplete suggestions
+  const fetchSuggestions = useCallback(async (input: string) => {
+    if (!input || input.length < 2) {
+      setSuggestions([])
+      setShowSuggestions(false)
+      return
     }
 
-    // Load Google Maps script (only if not already loaded)
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    
-    if (apiKey && !document.querySelector('script[src*="maps.googleapis.com"]') && !window.google) {
-      const googleMapsScript = document.createElement("script")
-      googleMapsScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`
-      googleMapsScript.async = true
-      googleMapsScript.id = "google-maps-script"
+    try {
+      const response = await fetch('/api/places/autocomplete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input,
+          sessionToken,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch suggestions')
+      }
+
+      const data = await response.json()
       
-      googleMapsScript.onload = () => {
-        // Wait for Places API to load with retry mechanism
-        const initializePlaces = (attempt = 1) => {
-          if (businessNameInputRef.current && window.google && window.google.maps && window.google.maps.places) {
-            try {
-              const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
-                types: ["establishment"],
-                fields: ["name"],
-              })
-              
-              autocomplete.addListener("place_changed", () => {
-                const place = autocomplete.getPlace()
-                if (place && place.name) {
-                  businessNameInputRef.current!.value = place.name
-                }
-              })
-            } catch (error) {
-              console.warn('Google Places Autocomplete initialization failed:', error)
-            }
-          } else if (attempt < 10) {
-            setTimeout(() => initializePlaces(attempt + 1), 500)
-          }
+      if (data.status === 'OK' && data.predictions) {
+        setSuggestions(data.predictions)
+        setShowSuggestions(true)
+      } else {
+        setSuggestions([])
+        setShowSuggestions(false)
+      }
+    } catch (error) {
+      console.error('Error fetching suggestions:', error)
+      setSuggestions([])
+      setShowSuggestions(false)
+    }
+  }, [sessionToken])
+
+  // Handle input change with debounce
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    
+    // Clear previous timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    // Set new timer
+    debounceTimerRef.current = setTimeout(() => {
+      fetchSuggestions(value)
+    }, 300) // 300ms debounce
+  }, [fetchSuggestions])
+
+  // Handle suggestion selection
+  const handleSelectSuggestion = useCallback(async (prediction: AutocompletePrediction) => {
+    try {
+      // Fetch place details to get the name
+      const response = await fetch('/api/places/details', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          placeId: prediction.place_id,
+          sessionToken,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.result?.name && businessNameInputRef.current) {
+          businessNameInputRef.current.value = data.result.name
+        }
+      } else {
+        // Fallback to main_text if details fetch fails
+        if (businessNameInputRef.current && prediction.structured_formatting?.main_text) {
+          businessNameInputRef.current.value = prediction.structured_formatting.main_text
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching place details:', error)
+      // Fallback to description
+      if (businessNameInputRef.current) {
+        businessNameInputRef.current.value = prediction.description
+      }
+    }
+
+    setShowSuggestions(false)
+    setSuggestions([])
+    // Generate new session token for next search
+    setSessionToken(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15))
+  }, [sessionToken])
+
+  // Load reCAPTCHA script
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return
+    }
+
+    try {
+      // Load reCAPTCHA v3 script (only if not already loaded)
+      if (!document.querySelector('script[src*="recaptcha/api.js"]')) {
+        const recaptchaScript = document.createElement("script")
+        recaptchaScript.src = "https://www.google.com/recaptcha/api.js?render=6LcDCpUrAAAAAPeXlMvlTLg7BnVqccrPvAC0HrEN"
+        recaptchaScript.async = true
+        
+        recaptchaScript.onerror = () => {
+          console.warn('reCAPTCHA script failed to load')
         }
         
-        // Start initialization
-        initializePlaces()
+        document.head.appendChild(recaptchaScript)
       }
-      
-      googleMapsScript.onerror = (error) => {
-        console.warn('Google Maps script failed to load:', error)
+    } catch (error) {
+      console.error('Error loading reCAPTCHA:', error)
+    }
+
+    // Cleanup debounce timer
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
       }
-      
-      document.head.appendChild(googleMapsScript)
-    } else if (window.google && window.google.maps && window.google.maps.places && businessNameInputRef.current) {
-      // Google Maps is already loaded, just initialize autocomplete
-      try {
-        const autocomplete = new window.google.maps.places.Autocomplete(businessNameInputRef.current, {
-          types: ["establishment"],
-          fields: ["name"],
-        })
-        
-        autocomplete.addListener("place_changed", () => {
-          const place = autocomplete.getPlace()
-          if (place && place.name) {
-            businessNameInputRef.current!.value = place.name
-          }
-        })
-      } catch (error) {
-        console.warn('Google Places Autocomplete initialization failed:', error)
+    }
+  }, [])
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (businessNameInputRef.current && !businessNameInputRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false)
       }
     }
 
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
-      // Note: We don't cleanup Google Maps scripts on unmount to avoid
-      // re-downloading when navigating between pages (language switching)
-      // This prevents the "already defined" errors in console
+      document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
 
@@ -230,16 +292,46 @@ export function WaitlistForm() {
       onSubmit={handleSubmit}
     >
       <div className="space-y-3">
-        <Input
-          ref={businessNameInputRef}
-          type="text"
-          id="NOMBRE"
-          name="NOMBRE"
-          placeholder="Nombre de tu local"
-          maxLength={200}
-          required
-          className="w-full"
-        />
+        <div className="relative">
+          <Input
+            ref={businessNameInputRef}
+            type="text"
+            id="NOMBRE"
+            name="NOMBRE"
+            placeholder="Nombre de tu local"
+            maxLength={200}
+            required
+            className="w-full"
+            onChange={handleInputChange}
+            onFocus={(e) => {
+              if (e.target.value.length >= 2 && suggestions.length > 0) {
+                setShowSuggestions(true)
+              }
+            }}
+            autoComplete="off"
+          />
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+              {suggestions.map((prediction) => (
+                <button
+                  key={prediction.place_id}
+                  type="button"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                  onClick={() => handleSelectSuggestion(prediction)}
+                >
+                  <div className="font-medium text-gray-900">
+                    {prediction.structured_formatting?.main_text || prediction.description}
+                  </div>
+                  {prediction.structured_formatting?.secondary_text && (
+                    <div className="text-sm text-gray-500">
+                      {prediction.structured_formatting.secondary_text}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <Input 
           type="text" 
           id="EMAIL" 
