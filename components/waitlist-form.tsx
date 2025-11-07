@@ -199,8 +199,20 @@ export function WaitlistForm() {
 
   // Handle suggestion selection
   const handleSelectSuggestion = useCallback(async (prediction: AutocompletePrediction) => {
+    if (!businessNameInputRef.current) return
+
+    // Immediately set the value using main_text (fastest and most reliable)
+    const mainText = prediction.structured_formatting?.main_text || prediction.description.split(',')[0] || prediction.description
+    
+    // Set the value immediately so user sees it right away
+    businessNameInputRef.current.value = mainText
+    
+    // Hide suggestions immediately
+    setShowSuggestions(false)
+    setSuggestions([])
+
+    // Try to get the official name from Place Details API (optional enhancement)
     try {
-      // Fetch place details to get the name
       const response = await fetch('/api/places/details', {
         method: 'POST',
         headers: {
@@ -214,25 +226,16 @@ export function WaitlistForm() {
 
       if (response.ok) {
         const data = await response.json()
+        // Update with the official name if available and different
         if (data.result?.name && businessNameInputRef.current) {
           businessNameInputRef.current.value = data.result.name
         }
-      } else {
-        // Fallback to main_text if details fetch fails
-        if (businessNameInputRef.current && prediction.structured_formatting?.main_text) {
-          businessNameInputRef.current.value = prediction.structured_formatting.main_text
-        }
       }
     } catch (error) {
-      console.error('Error fetching place details:', error)
-      // Fallback to description
-      if (businessNameInputRef.current) {
-        businessNameInputRef.current.value = prediction.description
-      }
+      // Silently fail - we already have a value set
+      console.warn('Could not fetch place details, using autocomplete result:', error)
     }
 
-    setShowSuggestions(false)
-    setSuggestions([])
     // Generate new session token for next search
     setSessionToken(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15))
   }, [sessionToken])
@@ -317,7 +320,14 @@ export function WaitlistForm() {
                   key={prediction.place_id}
                   type="button"
                   className="w-full text-left px-4 py-2 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                  onClick={() => handleSelectSuggestion(prediction)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleSelectSuggestion(prediction)
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault() // Prevent input from losing focus
+                  }}
                 >
                   <div className="font-medium text-gray-900">
                     {prediction.structured_formatting?.main_text || prediction.description}
