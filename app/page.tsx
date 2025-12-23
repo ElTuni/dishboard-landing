@@ -3,299 +3,376 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet"
-import { Menu, LayoutDashboard, Lightbulb, Users, TrendingUp, MapPin, Instagram } from "lucide-react"
-import { EvolutionChart } from "@/components/line-chart"
-import { ComparisonChart } from "@/components/bar-chart"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Sheet, SheetTrigger, SheetContent, SheetTitle } from "@/components/ui/sheet"
+import { Menu, QrCode, MapPin, Star, Nfc, ShieldCheck, Users, MessageSquare, ChevronDown } from "lucide-react"
 import { WaitlistForm } from "@/components/waitlist-form"
-// import { AnimateOnScroll } from "@/components/animate-on-scroll"
+import { StarRating } from "@/components/star-rating"
+import { FeaturesCarousel } from "@/components/features-carousel"
+import { AnimatedCounter } from "@/components/animated-counter"
+import { useState, useEffect } from "react"
+import { getTranslations, type Locale } from "@/lib/translations"
+import { features } from "@/lib/features"
 
-export default function DishboardLandingPageES() {
+const heroImages = ["/hero-restaurant-owner.jpg", "/hero-1.png", "/hero-2.png", "/hero-3.png"]
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <div>
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full py-5 flex items-center justify-between text-left">
+        <span className="font-medium text-[#2A3C3F] text-lg">{question}</span>
+        <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+      {isOpen && <div className="pb-5 text-gray-600">{answer}</div>}
+    </div>
+  )
+}
+
+function detectLocale(): Locale {
+  if (typeof window === 'undefined') return 'es'
+  const browserLang = navigator.language || (navigator as any).userLanguage || 'es'
+  return browserLang.startsWith('en') ? 'en' : 'es'
+}
+
+export default function DishboardLandingPage() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [locale, setLocale] = useState<Locale>('es')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    setLocale(detectLocale())
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const t = getTranslations(locale)
+  const currentFeatures = features[locale]
+
+  if (!mounted) {
+    return null
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800">
       <header className="px-4 lg:px-6 h-16 flex items-center sticky top-0 z-50 bg-white/80 backdrop-blur-sm shadow-sm">
-        <div className="max-w-7xl mx-auto w-full flex items-center">
           <Link href="#" className="flex items-center justify-center" prefetch={false}>
-            <Image src="/logo.png" alt="Logo de Dishboard" width={150} height={40} className="object-contain" />
-            <span className="sr-only">Dishboard</span>
+          <Image src="/logo.png" alt="dishboard Logo" width={150} height={40} className="object-contain" />
+          <span className="sr-only">dishboard</span>
           </Link>
           <nav className="ml-auto hidden lg:flex gap-4 sm:gap-6">
-            <Link href="#features" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-              Qué Hacemos
-            </Link>
             <Link
-              href="#integrations"
+            href="#como-funciona"
               className="text-sm font-medium hover:underline underline-offset-4"
               prefetch={false}
             >
-              Integraciones
+            {t.nav.howItWorks}
+          </Link>
+          <Link href="#plataforma" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
+            {t.nav.platform}
+          </Link>
+          <Link href="#beneficios" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
+            {t.nav.benefits}
             </Link>
           </nav>
-          <div className="ml-auto flex items-center gap-2 relative">
-            <Link href="/en">
-              <Button variant="ghost">EN</Button>
-            </Link>
+        <div className="ml-auto flex items-center gap-2">
             <Link href="#waitlist">
-              <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] hidden sm:flex">Unite a la lista</Button>
+            <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] hidden sm:flex">{t.nav.tryIt}</Button>
             </Link>
           </div>
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="lg:hidden ml-4 bg-transparent">
                 <Menu className="h-6 w-6" />
-                <span className="sr-only">Abrir menú de navegación</span>
+              <span className="sr-only">Open navigation menu</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
-              <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
-              <SheetDescription className="sr-only">Navegá por las secciones de Dishboard y cambiá el idioma</SheetDescription>
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <nav className="grid gap-6 text-lg font-medium">
                 <Link href="#" className="flex items-center gap-2 text-lg font-semibold" prefetch={false}>
-                  <Image src="/logo.png" alt="Logo de Dishboard" width={150} height={40} className="object-contain" />
-                  <span className="sr-only">Dishboard</span>
+                <Image src="/logo.png" alt="dishboard Logo" width={150} height={40} className="object-contain" />
+                <span className="sr-only">dishboard</span>
+              </Link>
+              <Link href="#como-funciona" className="hover:text-foreground" prefetch={false}>
+                {t.nav.howItWorks}
                 </Link>
-                <Link href="#features" className="hover:text-foreground" prefetch={false}>
-                  Qué Hacemos
+              <Link href="#plataforma" className="text-muted-foreground hover:text-foreground" prefetch={false}>
+                {t.nav.platform}
                 </Link>
-                <Link href="#integrations" className="text-muted-foreground hover:text-foreground" prefetch={false}>
-                  Integraciones
+              <Link href="#beneficios" className="text-muted-foreground hover:text-foreground" prefetch={false}>
+                {t.nav.benefits}
                 </Link>
                 <div className="flex flex-col gap-4 mt-4">
                   <Link href="#waitlist">
-                    <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2]">Unirse a la lista</Button>
-                  </Link>
-                  <Link href="/en" className="text-muted-foreground hover:text-foreground">
-                    EN - English version
+                  <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] w-full">{t.nav.tryIt}</Button>
                   </Link>
                 </div>
               </nav>
             </SheetContent>
           </Sheet>
-        </div>
       </header>
+
       <main className="flex-1">
-        <section className="w-full py-12 md:py-20 lg:py-28 bg-white">
-          <div className="max-w-7xl mx-auto px-4 md:px-6">
-            <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-16">
-              <div className="flex flex-col justify-center space-y-4">
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-[#2A3C3F]">
-                    Hacé que tu local gastronómico destaque de la competencia.
+        <div className="h-[calc(100vh-4rem)] md:h-[calc(100vh-4rem+1px)] flex flex-col">
+          <section className="flex-1 flex items-center bg-white py-8 md:py-0">
+            <div className="container px-4 md:px-6 mx-auto h-full flex items-center w-full">
+              <div className="grid lg:grid-cols-2 gap-8 items-center max-w-6xl mx-auto w-full">
+                <div className="flex flex-col space-y-5 order-2 lg:order-1">
+                  <div className="flex flex-col items-start gap-1">
+                    <StarRating filled={1} total={5} size="lg" hoverable />
+                    <p className="text-sm text-gray-500">{t.hero.ratingLabel}</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-5xl xl:text-6xl text-[#2A3C3F]">
+                      {t.hero.title}{" "}
+                      {t.hero.titleHighlight && (
+                        <span className="underline decoration-[#8EE0B2] decoration-4 underline-offset-4">
+                          {t.hero.titleHighlight}
+                        </span>
+                      )}
                   </h1>
-                  <p className="max-w-[600px] text-gray-600 md:text-xl">
-                    Convertimos todas las opiniones de tus clientes en recomendaciones{" "}
-                    <span className="underline decoration-[#8EE0B2] decoration-2 underline-offset-4">accionables</span>{" "}
-                    para mejorar tu local.
-                  </p>
+                    <p className="text-xl md:text-2xl text-gray-600">{t.hero.subtitle}</p>
                 </div>
-                <div className="flex flex-col gap-2 min-[500px]:flex-row">
+
+                  <div className="flex  gap-3 flex-row  pt-2">
                   <Link href="#waitlist">
-                    <Button size="lg" className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] w-full">
-                      Unite a la lista de espera
+                      <Button size="lg" className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] text-base px-8">
+                        {t.hero.cta}
                     </Button>
                   </Link>
-                  <Link href="#features">
-                    <Button variant="outline" size="lg" className="w-full bg-transparent">
-                      Descubrí cómo
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                <Image
-                  src="/hero-illustration.png"
-                  width="600"
-                  height="400"
-                  alt="Ilustración de una dueña de local gastronómico analizando datos y gráficos de su negocio en una laptop"
-                  className="aspect-video overflow-hidden rounded-xl object-contain w-full max-w-lg lg:order-last mt-8 sm:mt-0"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
 
-        <section id="competitors" className="w-full py-12 md:py-16 lg:py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-[#2A3C3F]">No te quedes atrás</h2>
-              <p className="max-w-[900px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                ¿Sentís que a tu competencia le va mejor pero no sabés por qué?<br/> Dishboard te muestra la foto completa
-                para que reacciones rápido y tomes el control.
-              </p>
-            </div>
-            <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-center">Tu calificación vs. competencia</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <EvolutionChart />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-center">¿En qué te ganan?</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ComparisonChart />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
+                  </div>
+                </div>
 
-        <section id="features" className="w-full py-12 md:py-16 lg:py-20">
-          <div className="max-w-7xl mx-auto px-4 md:px-6">
-            <div className="mx-auto grid items-start gap-8 sm:max-w-4xl md:gap-12 lg:max-w-5xl lg:grid-cols-2">
-              <div className="grid gap-1">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#8EE0B2] rounded-full">
-                    <LayoutDashboard className="h-6 w-6 text-gray-900" />
+                <div className="relative flex justify-center lg:justify-end order-1 lg:order-2">
+                  <div className="relative w-full max-w-lg aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
+                    {heroImages.map((src, index) => (
+                      <Image
+                        key={src}
+                        src={src || "/placeholder.svg"}
+                        alt="Restaurant scene"
+                        fill
+                        className={`object-cover transition-opacity duration-700 ${
+                          index === currentImageIndex ? "opacity-100" : "opacity-0"
+                        }`}
+                        priority={index === 0}
+                      />
+                    ))}
                   </div>
-                  <h3 className="text-lg font-bold text-[#2A3C3F]">Todo en un solo lugar</h3>
                 </div>
-                <p className="text-sm text-gray-600">
-                  De un vistazo tenés el panorama completo: qué dicen de tu local, cómo te comparás con la competencia y
-                  dónde están las oportunidades de mejora.
+              </div>
+            </div>
+          </section>
+
+          <section className="w-full py-6 md:py-8 flex items-center bg-[#2A3C3F] text-white flex-shrink-0">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16 text-center md:text-left">
+              <div className="flex items-center gap-3">
+                <MapPin className="h-7 w-7 text-[#8EE0B2]" />
+                <p className="text-base md:text-lg">
+                  <span className="font-bold">{t.valueBar.moreReviews}</span> = {t.valueBar.betterRanking}
                 </p>
               </div>
-              <div className="grid gap-1">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#8EE0B2] rounded-full">
-                    <Lightbulb className="h-6 w-6 text-gray-900" />
-                  </div>
-                  <h3 className="text-lg font-bold text-[#2A3C3F]">El "qué hacer" con los datos</h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  No te ahogues en los datos. Te damos recomendaciones claras y priorizadas: 'Ofrecé opción vegana',
-                  'Mejorá la velocidad del servicio', 'Agregá más opciones sin gluten'.
-                </p>
-              </div>
-              <div className="grid gap-1">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#8EE0B2] rounded-full">
-                    <Users className="h-6 w-6 text-gray-900" />
-                  </div>
-                  <h3 className="text-lg font-bold text-[#2A3C3F]">Entendé el juego de tu competencia</h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Mirá qué les funciona y qué no a los locales gastronómicos de tu zona. Descubrí oportunidades y evitá
-                  cometer los mismos errores.
-                </p>
-              </div>
-              <div className="grid gap-1">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#8EE0B2] rounded-full">
-                    <TrendingUp className="h-6 w-6 text-gray-900" />
-                  </div>
-                  <h3 className="text-lg font-bold text-[#2A3C3F]">Medí el impacto de tus acciones</h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  ¿Hiciste un cambio en el menú? ¿Renovaste el local?<br/>Mirá cómo reaccionan tus métricas en tiempo real y
-                  comprobá qué es lo que de verdad funciona.
+              <div className="hidden md:block w-px h-10 bg-white/20"></div>
+              <div className="flex items-center gap-3">
+                <Star className="h-7 w-7 text-[#8EE0B2] fill-[#8EE0B2]" />
+                <p className="text-base md:text-lg">
+                  <span className="font-bold">{t.valueBar.betterReputation}</span> = {t.valueBar.moreCustomers}
                 </p>
               </div>
             </div>
           </div>
-        </section>
+          </section>
+        </div>
 
-        <section id="integrations" className="w-full py-12 md:py-16 lg:py-20 bg-gray-100">
-          <div className="max-w-7xl mx-auto px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-gray-200 px-3 py-1 text-sm">Integraciones</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-[#2A3C3F]">
-                  Toda tu data en un solo lugar
+        <section className="w-full min-h-[600px] py-16 md:py-24 bg-white flex items-center">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-5xl mx-auto">
+              <div className="order-2 lg:order-1 flex justify-center">
+                <div className="relative">
+                  <div className="w-72 h-72 md:w-80 md:h-80 bg-gradient-to-br from-[#8EE0B2]/20 to-[#2A3C3F]/10 rounded-3xl flex items-center justify-center">
+                    <div className="w-52 h-52 md:w-60 md:h-60 bg-white rounded-2xl shadow-lg flex flex-col items-center justify-center gap-3 p-6">
+                      <QrCode className="h-24 w-24 md:h-28 md:w-28 text-[#2A3C3F]" />
+                      <div className="flex items-center justify-center gap-2 text-base font-medium text-gray-600">
+                        <Nfc className="h-5 w-5" />
+                        <span>{t.qrSection.nfcLabel}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute -top-3 -right-3 bg-[#8EE0B2] text-gray-900 font-bold text-sm px-4 py-1.5 rounded-full shadow-md">
+                    {t.qrSection.badge}
+                  </div>
+                </div>
+              </div>
+              <div className="order-1 lg:order-2 space-y-4">
+                <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl text-[#2A3C3F]">
+                  {t.qrSection.title} <AnimatedCounter end={10} className="text-[#8EE0B2]" /> {t.qrSection.titleSuffix}
                 </h2>
-                <p className="max-w-[900px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Arrancamos con Google Maps, la herramienta clave para cualquier negocio gastronómico.
-                  <br />Y pronto, mucho más.
+                <p className="text-gray-600 md:text-lg lg:text-xl">
+                  {t.qrSection.description1} <strong>{t.qrSection.description1Highlight}</strong> {t.qrSection.description1End}
                 </p>
-              </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl items-center gap-8 py-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              <div className="flex flex-col items-center justify-center gap-2 text-center">
-                <MapPin className="h-12 w-12 text-red-500" />
-                <span className="font-semibold">Google Maps</span>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-2 text-center opacity-50">
-                <Image
-                  src="/tiktok-logo.png"
-                  alt="Logo de TikTok"
-                  width={48}
-                  height={48}
-                  className="h-12 w-12 object-contain"
-                  style={{ filter: "grayscale(1) brightness(0.6) contrast(1.2)" }}
-                />
-                <span className="font-semibold">TikTok</span>
-                <span className="text-xs font-medium text-gray-500">(Próximamente)</span>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-2 text-center opacity-50">
-                <Image
-                  src="/yelp-logo.png"
-                  alt="Logo de Yelp"
-                  width={48}
-                  height={48}
-                  className="h-12 w-12 object-contain"
-                  style={{ filter: "grayscale(1) brightness(0.6) contrast(1.2)" }}
-                />
-                <span className="font-semibold">Yelp</span>
-                <span className="text-xs font-medium text-gray-500">(Próximamente)</span>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-2 text-center opacity-50">
-                <Image
-                  src="/tripadvisor-logo.png"
-                  alt="Logo de TripAdvisor"
-                  width={48}
-                  height={48}
-                  className="h-12 w-12 object-contain"
-                  style={{ filter: "grayscale(1) brightness(0.6) contrast(1.2)" }}
-                />
-                <span className="font-semibold">TripAdvisor</span>
-                <span className="text-xs font-medium text-gray-500">(Próximamente)</span>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-2 text-center opacity-50">
-                <Instagram className="h-12 w-12 text-gray-500" />
-                <span className="font-semibold">Instagram</span>
-                <span className="text-xs font-medium text-gray-500">(Próximamente)</span>
+                <p className="text-gray-600 md:text-lg lg:text-xl">
+                  {t.qrSection.description2}{" "}
+                  <span className="font-semibold text-[#2A3C3F]">{t.qrSection.description2Highlight}</span>.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="waitlist" className="w-full py-12 md:py-16 lg:py-20">
-          <div className="max-w-7xl mx-auto grid items-center justify-center gap-4 px-4 text-center md:px-6">
-            <div className="space-y-3">
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-[#2A3C3F] text-center">
-                ¿Querés dejar de improvisar?
-              </h2>
-              <p className="mx-auto max-w-[600px] text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Anotate en la lista de espera y sé de los primeros en probar Dishboard. Vas a tener acceso anticipado y
-                beneficios por ser parte de la beta.
-              </p>
+        <section
+          id="como-funciona"
+          className="w-full bg-[#EDEEEF] py-12 md:py-16"
+        >
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="flex flex-col items-center justify-center space-y-2 text-center mb-8 md:mb-12">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-[#2A3C3F]">{t.howItWorks.title}</h2>
+              <p className="max-w-[600px] text-gray-600 md:text-lg">{t.howItWorks.subtitle}</p>
             </div>
-            <div className="mx-auto w-full max-w-sm space-y-2">
-              <WaitlistForm locale="es" />
-              <p className="text-xs text-gray-500">
-                Gratis y sin vueltas. Este sitio está protegido por reCAPTCHA y se aplican las políticas de Google.
-              </p>
+
+            <div className="w-full max-w-5xl lg:max-w-7xl mx-auto flex justify-center">
+              <img
+                src="/dishboard-flow.png"
+                alt={t.howItWorks.title}
+                className="max-w-full h-auto"
+                style={{ maxHeight: '70vh', objectFit: 'contain' }}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section id="plataforma" className="w-full py-10 md:py-14 bg-white">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="flex flex-col items-center justify-center space-y-3 text-center mb-8">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-[#2A3C3F]">{t.platform.title}</h2>
+              <p className="max-w-[700px] text-gray-600 md:text-lg">{t.platform.subtitle}</p>
+            </div>
+
+            <div className="max-w-5xl mx-auto">
+              <FeaturesCarousel features={currentFeatures} />
+            </div>
+                  </div>
+        </section>
+
+        <section id="beneficios" className="w-full py-10 md:py-14 bg-gray-100">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid lg:grid-cols-2 gap-8 items-center max-w-6xl mx-auto">
+              <div className="relative">
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
+                  <Image
+                    src="/benefits-food.jpg"
+                    alt={t.benefits.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-[#2A3C3F] mb-3">
+                    {t.benefits.title}{" "}
+                    {t.benefits.titleHighlight && (
+                      <span className="underline decoration-[#8EE0B2] decoration-4 underline-offset-4">
+                        {t.benefits.titleHighlight}
+                      </span>
+                    )}{" "}
+                    {t.benefits.titleSuffix}
+                  </h2>
+                  <p className="text-gray-600 md:text-lg">{t.benefits.subtitle}</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm">
+                    <div className="w-10 h-10 bg-[#8EE0B2] rounded-full flex items-center justify-center flex-shrink-0">
+                      <MessageSquare className="h-5 w-5 text-[#2A3C3F]" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[#2A3C3F] mb-1">{t.benefits.moreReviews.title}</h3>
+                      <p className="text-sm text-gray-600">{t.benefits.moreReviews.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm">
+                    <div className="w-10 h-10 bg-[#8EE0B2] rounded-full flex items-center justify-center flex-shrink-0">
+                      <ShieldCheck className="h-5 w-5 text-[#2A3C3F]" />
+                </div>
+                    <div>
+                      <h3 className="font-bold text-[#2A3C3F] mb-1">{t.benefits.fewerComplaints.title}</h3>
+                      <p className="text-sm text-gray-600">{t.benefits.fewerComplaints.description}</p>
+              </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm">
+                    <div className="w-10 h-10 bg-[#8EE0B2] rounded-full flex items-center justify-center flex-shrink-0">
+                      <Users className="h-5 w-5 text-[#2A3C3F]" />
+                </div>
+                    <div>
+                      <h3 className="font-bold text-[#2A3C3F] mb-1">{t.benefits.moreCustomers.title}</h3>
+                      <p className="text-sm text-gray-600">{t.benefits.moreCustomers.description}</p>
+              </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="w-full py-12 md:py-16 bg-white">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-[#2A3C3F] mb-8">{t.faq.title}</h2>
+              <div className="divide-y divide-gray-200">
+                {t.faq.items.map((faq, index) => (
+                  <FAQItem key={index} question={faq.question} answer={faq.answer} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="waitlist" className="w-full py-16 md:py-24 bg-[#2A3C3F] text-white">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="flex flex-col items-center justify-center space-y-6 text-center max-w-2xl mx-auto">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{t.waitlist.title}</h2>
+              <p className="text-gray-300 md:text-lg max-w-xl">{t.waitlist.subtitle}</p>
+              <div className="w-full max-w-md">
+                <WaitlistForm locale={locale} />
+            </div>
             </div>
           </div>
         </section>
       </main>
-      <footer className="border-t bg-white">
-        <div className="max-w-7xl mx-auto flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6">
-        <p className="text-xs text-gray-500">&copy; 2025 Dishboard. Todos los derechos reservados.</p>
+
+      <footer className="flex flex-col gap-2 sm:flex-row py-4 w-full shrink-0 items-center px-4 md:px-6 border-t bg-white">
+        <p className="text-xs text-gray-500">{t.footer.copyright}</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-            Condiciones
+          <Link
+            href="https://policies.google.com/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs hover:underline underline-offset-4 text-gray-500"
+            prefetch={false}
+          >
+            {t.footer.terms}
           </Link>
-          <Link href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline underline-offset-4" prefetch={false}>
-            Privacidad
+          <Link
+            href="https://policies.google.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs hover:underline underline-offset-4 text-gray-500"
+            prefetch={false}
+          >
+            {t.footer.privacy}
           </Link>
         </nav>
-        </div>
       </footer>
     </div>
   )

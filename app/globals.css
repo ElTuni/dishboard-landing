@@ -188,6 +188,34 @@
     background-color: white !important;
   }
 
+  /* Waitlist form inputs - dark theme styles */
+  form[id="sib-form"] #NOMBRE,
+  form[id="sib-form"] #EMAIL {
+    background-color: rgba(55, 65, 81, 0.8) !important;
+    border-color: rgba(107, 114, 128, 0.6) !important;
+    color: #e5e7eb !important;
+  }
+  
+  form[id="sib-form"] #NOMBRE:focus,
+  form[id="sib-form"] #EMAIL:focus,
+  form[id="sib-form"] #NOMBRE:focus-visible,
+  form[id="sib-form"] #EMAIL:focus-visible {
+    background-color: rgba(55, 65, 81, 0.8) !important;
+    border-color: rgba(156, 163, 175, 1) !important;
+  }
+  
+  form[id="sib-form"] #NOMBRE:-webkit-autofill,
+  form[id="sib-form"] #EMAIL:-webkit-autofill,
+  form[id="sib-form"] #NOMBRE:-webkit-autofill:hover,
+  form[id="sib-form"] #EMAIL:-webkit-autofill:hover,
+  form[id="sib-form"] #NOMBRE:-webkit-autofill:focus,
+  form[id="sib-form"] #EMAIL:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px rgba(55, 65, 81, 0.8) inset !important;
+    box-shadow: 0 0 0 30px rgba(55, 65, 81, 0.8) inset !important;
+    -webkit-text-fill-color: #e5e7eb !important;
+    border-color: rgba(107, 114, 128, 0.6) !important;
+  }
+
   /* Hide reCAPTCHA badge - multiple selectors to ensure it works */
   .grecaptcha-badge,
   div[data-style*="bottom:right"],

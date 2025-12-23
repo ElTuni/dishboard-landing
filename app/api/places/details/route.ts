@@ -1,43 +1,48 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const { placeId, sessionToken } = await req.json()
+    const body = await request.json()
+    const { placeId, sessionToken } = body
 
-    if (!placeId || typeof placeId !== "string") {
-      return NextResponse.json({ error: "Missing placeId" }, { status: 400 })
+    if (!placeId || typeof placeId !== 'string') {
+      return NextResponse.json(
+        { error: 'Invalid placeId parameter' },
+        { status: 400 }
+      )
     }
 
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
     if (!apiKey) {
-      return NextResponse.json({ error: "Missing GOOGLE_MAPS_API_KEY" }, { status: 500 })
+      console.error('Google Maps API key is not configured')
+      return NextResponse.json(
+        { error: 'API key not configured' },
+        { status: 500 }
+      )
     }
 
-    const params = new URLSearchParams({
-      place_id: placeId,
-      key: apiKey,
-      fields: "name,formatted_address,place_id,rating,user_ratings_total",
-    })
-
+    // Build the request URL for Google Places Details API
+    const url = new URL('https://maps.googleapis.com/maps/api/place/details/json')
+    url.searchParams.append('place_id', placeId)
+    url.searchParams.append('key', apiKey)
+    url.searchParams.append('fields', 'place_id,name,rating,user_ratings_total,formatted_address')
+    url.searchParams.append('language', 'es')
+    
     if (sessionToken) {
-      params.set("sessiontoken", String(sessionToken))
+      url.searchParams.append('sessiontoken', sessionToken)
     }
 
-    const url = `https://maps.googleapis.com/maps/api/place/details/json?${params.toString()}`
+    const response = await fetch(url.toString())
+    const data = await response.json()
 
-    const resp = await fetch(url)
-
-    if (!resp.ok) {
-      return NextResponse.json({ error: `Upstream error ${resp.status}` }, { status: 502 })
-    }
-
-    const data = await resp.json()
-
-    return NextResponse.json({ result: data.result ?? null, status: data.status })
+    return NextResponse.json(data)
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error"
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Error in details API route:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
 

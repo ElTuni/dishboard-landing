@@ -1,14 +1,17 @@
 import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
   title: 'dishboard',
-  description: 'Hacé que tu local gastronómico destaque de la competencia',
+  description: 'Reseñas inteligentes para locales gastronómicos que quieren crecer',
+  generator: 'dishboard',
   icons: {
-    icon: '/logonotext.png',
-    shortcut: '/logonotext.png',
+    icon: [
+      {
+        url: '/logonotext.png',
+      },
+    ],
     apple: '/logonotext.png',
   },
 }
@@ -19,17 +22,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <style>{`
-html {
-  font-family: ${GeistSans.style.fontFamily};
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
-}
-        `}</style>
-      </head>
-      <body>{children}</body>
+    <html lang="es" suppressHydrationWarning className="text-base lg:text-[120%]">
+      <body className={`font-sans antialiased`}>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }

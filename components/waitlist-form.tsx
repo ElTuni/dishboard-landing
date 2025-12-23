@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { MapPin, Star, Loader2 } from "lucide-react"
 import { useEffect, useRef, useState, useCallback } from "react"
+import { cn } from "@/lib/utils"
 
 // Declare global types
 declare global {
@@ -426,6 +427,8 @@ export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
     }
   }, [])
 
+  const inputClasses = "!bg-[#374151]/80 !border-[#6B7280]/60 !text-gray-200 placeholder:!text-gray-400 focus-visible:!border-[#9CA3AF] focus-visible:!ring-[#9CA3AF]/50 focus-visible:!ring-offset-0"
+
   return (
     <form
       id="sib-form"
@@ -445,7 +448,7 @@ export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
             placeholder={t.placeNamePlaceholder}
             maxLength={200}
             required
-            className="w-full pr-10"
+            className={cn(inputClasses, 'pr-10')}
             value={businessName}
             onChange={handleInputChange}
             onFocus={(e) => {
@@ -457,13 +460,13 @@ export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
           />
           {loadingSuggestions && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin text-white/60" />
             </div>
           )}
           {showSuggestions && suggestions.length > 0 && (
             <Card 
               ref={suggestionsRef}
-              className="absolute top-full left-0 right-0 mt-2 z-50 max-h-60 overflow-y-auto border-2 border-emerald-200 shadow-lg"
+              className="absolute top-full left-0 right-0 mt-2 z-50 max-h-60 overflow-y-auto border-2 border-emerald-500/30 bg-[#2A3C3F] shadow-lg"
               role="listbox"
               id="suggestions-list"
               aria-label={t.suggestionsLabel}
@@ -476,7 +479,7 @@ export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
                     e.stopPropagation()
                     handleSelectSuggestion(suggestion)
                   }}
-                  className="w-full p-3 text-left hover:bg-emerald-50 border-b border-gray-100 last:border-b-0 transition-all duration-300 ease-in-out focus:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 group"
+                  className="w-full p-3 text-left border-b last:border-b-0 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 group hover:bg-white/10 border-white/10 focus:bg-white/10"
                   role="option"
                   aria-selected="false"
                   tabIndex={0}
@@ -487,27 +490,27 @@ export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
                   type="button"
                 >
                   <div className="flex items-center space-x-3">
-                    <MapPin className="h-5 w-5 text-gray-400 group-hover:text-emerald-500 flex-shrink-0 transition-colors duration-200" />
+                    <MapPin className="h-5 w-5 flex-shrink-0 transition-colors duration-200 text-white/60 group-hover:text-emerald-400" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className="font-medium text-gray-900 truncate">
+                        <p className="font-medium truncate text-white">
                           {suggestion.structured_formatting?.main_text || suggestion.description.split(',')[0]}
                         </p>
                         {suggestion.rating && (
                           <div className="flex items-center space-x-1 ml-2 flex-shrink-0">
                             <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-sm font-medium text-white">
                               {suggestion.rating.toFixed(1)}
                             </span>
                           </div>
                         )}
                       </div>
                       <div className="flex items-center justify-between mt-1">
-                        <p className="text-sm text-gray-500 truncate">
+                        <p className="text-sm truncate text-gray-300">
                           {suggestion.structured_formatting?.secondary_text || suggestion.description.split(',').slice(1).join(',').trim()}
                         </p>
                         {suggestion.user_ratings_total && (
-                          <span className="text-xs text-gray-400 ml-2 flex-shrink-0">
+                          <span className="text-xs ml-2 flex-shrink-0 text-gray-400">
                             ({suggestion.user_ratings_total} {t.reviews})
                           </span>
                         )}
@@ -525,7 +528,7 @@ export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
           name="EMAIL" 
           placeholder={t.emailPlaceholder}
           required 
-          className="w-full focus:ring-0 focus:border-gray-300 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className={cn(inputClasses)}
           autoComplete="email"
         />
       </div>
@@ -542,10 +545,10 @@ export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
       {submitStatus !== 'idle' && (
         <div className={`p-4 rounded-md text-sm whitespace-pre-line ${
           submitStatus === 'success' 
-            ? 'bg-green-50 text-green-800 border border-green-200' 
+            ? 'bg-green-900/30 text-green-200 border border-green-500/30' 
             : submitStatus === 'duplicate'
-            ? 'bg-blue-50 text-blue-800 border border-blue-200'
-            : 'bg-red-50 text-red-800 border border-red-200'
+            ? 'bg-blue-900/30 text-blue-200 border border-blue-500/30'
+            : 'bg-red-900/30 text-red-200 border border-red-500/30'
         }`}>
           {submitMessage}
         </div>
