@@ -407,6 +407,58 @@ export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
     }
   }, [])
 
+  // Handle mobile keyboard and scroll behavior
+  useEffect(() => {
+    const input = businessNameInputRef.current
+    if (!input) return
+
+    const handleFocus = () => {
+      // Small delay to ensure the keyboard animation starts
+      setTimeout(() => {
+        // Scroll input into view with smooth behavior
+        input.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        })
+      }, 300) // Wait for keyboard animation
+    }
+
+    const handleSuggestionsShow = () => {
+      if (showSuggestions && suggestions.length > 0) {
+        // When suggestions appear, ensure they're visible
+        setTimeout(() => {
+          if (suggestionsRef.current) {
+            // Scroll to show both input and suggestions
+            const inputRect = input.getBoundingClientRect()
+            const suggestionsRect = suggestionsRef.current.getBoundingClientRect()
+            const viewportHeight = window.visualViewport?.height || window.innerHeight
+            
+            // If suggestions are below viewport, scroll to show them
+            if (suggestionsRect.bottom > viewportHeight) {
+              suggestionsRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'end',
+                inline: 'nearest'
+              })
+            }
+          }
+        }, 100)
+      }
+    }
+
+    input.addEventListener('focus', handleFocus)
+    
+    // Watch for suggestions appearing
+    if (showSuggestions) {
+      handleSuggestionsShow()
+    }
+
+    return () => {
+      input.removeEventListener('focus', handleFocus)
+    }
+  }, [showSuggestions, suggestions.length])
+
   // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -455,6 +507,14 @@ export function WaitlistForm({ locale = 'es' }: WaitlistFormProps) {
               if (e.target.value.length >= 2 && suggestions.length > 0) {
                 setShowSuggestions(true)
               }
+              // Scroll into view on mobile when keyboard appears
+              setTimeout(() => {
+                e.target.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'center',
+                  inline: 'nearest'
+                })
+              }, 300)
             }}
             autoComplete="off"
           />

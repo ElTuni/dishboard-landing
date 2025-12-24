@@ -119,9 +119,9 @@ export default function DishboardLandingPage() {
       </header>
 
       <main className="flex-1">
-        <div className="h-[calc(100vh-4rem)] md:h-[calc(100vh-4rem+1px)] flex flex-col">
-          <section className="flex-1 flex items-center bg-white py-8 md:py-0">
-            <div className="container px-4 md:px-6 mx-auto h-full flex items-center w-full">
+        <section className="w-full min-h-[calc(100vh-4rem)] flex flex-col bg-white">
+          <div className="flex-1 flex items-center py-8 md:py-12 lg:py-16">
+            <div className="container px-4 md:px-6 mx-auto w-full">
               <div className="grid lg:grid-cols-2 gap-8 items-center max-w-6xl mx-auto w-full">
                 <div className="flex flex-col space-y-5 order-2 lg:order-1">
                   <div className="flex flex-col items-start gap-1">
@@ -169,9 +169,9 @@ export default function DishboardLandingPage() {
                 </div>
               </div>
             </div>
-          </section>
+          </div>
 
-          <section className="w-full py-6 md:py-8 flex items-center bg-[#2A3C3F] text-white flex-shrink-0">
+          <section className="w-full py-6 md:py-8 flex items-center bg-[#2A3C3F] text-white mt-auto">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16 text-center md:text-left">
               <div className="flex items-center gap-3">
@@ -190,7 +190,7 @@ export default function DishboardLandingPage() {
             </div>
           </div>
           </section>
-        </div>
+        </section>
 
         <section className="w-full min-h-[600px] py-16 md:py-24 bg-white flex items-center">
           <div className="container px-4 md:px-6 mx-auto">
@@ -338,12 +338,12 @@ export default function DishboardLandingPage() {
           </div>
         </section>
 
-        <section id="waitlist" className="w-full py-16 md:py-24 bg-[#2A3C3F] text-white">
+        <section id="waitlist" className="w-full py-12 md:py-24 bg-[#2A3C3F] text-white">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-6 text-center max-w-2xl mx-auto">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{t.waitlist.title}</h2>
               <p className="text-gray-300 md:text-lg max-w-xl">{t.waitlist.subtitle}</p>
-              <div className="w-full max-w-md">
+              <div className="w-full max-w-md pb-8 md:pb-0">
                 <WaitlistForm locale={locale} />
             </div>
             </div>
