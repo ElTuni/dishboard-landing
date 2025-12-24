@@ -12,6 +12,7 @@ export const translations = {
       ratingLabel: '¿Te suena?',
       title: 'No más reseñas',
       titleHighlight: 'injustas',
+      titleSuffix: '',
       subtitle: 'Reseñas inteligentes para locales gastronómicos que quieren crecer',
       cta: 'Quiero probarlo gratis',
       howItWorks: '¿Cómo funciona?',
@@ -112,8 +113,9 @@ export const translations = {
     },
     hero: {
       ratingLabel: 'Sound familiar?',
-      title: 'No more unfair reviews',
-      titleHighlight: '',
+      title: 'No more',
+      titleHighlight: 'unfair',
+      titleSuffix: 'reviews',
       subtitle: 'Smart reviews for restaurants that want to grow',
       cta: 'Try It Free',
       howItWorks: 'How does it work?',
@@ -144,9 +146,9 @@ export const translations = {
       subtitle: 'dishboard collects all feedback (from Google, TripAdvisor, and your QR) and turns it into insights you can act on.',
     },
     benefits: {
-      title: 'Real results for your restaurant',
-      titleHighlight: '',
-      titleSuffix: '',
+      title: '',
+      titleHighlight: 'Real results',
+      titleSuffix: 'for your restaurant',
       subtitle: 'Dishboard directly impacts your online reputation and the number of customers who choose you.',
       moreReviews: {
         title: 'More real reviews',

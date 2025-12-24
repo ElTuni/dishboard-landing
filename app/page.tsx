@@ -85,7 +85,8 @@ export default function DishboardLandingPage() {
             <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] hidden sm:flex">{t.nav.tryIt}</Button>
             </Link>
           </div>
-          <Sheet>
+          {/* Hamburger menu - disabled but kept for future use */}
+          {/* <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="lg:hidden ml-4 bg-transparent">
                 <Menu className="h-6 w-6" />
@@ -115,12 +116,12 @@ export default function DishboardLandingPage() {
                 </div>
               </nav>
             </SheetContent>
-          </Sheet>
+          </Sheet> */}
       </header>
 
       <main className="flex-1">
         <section className="w-full min-h-[calc(100vh-4rem)] flex flex-col bg-white">
-          <div className="flex-1 flex items-center py-8 md:py-12 lg:py-16">
+          <div className="flex-1 flex items-center py-12 md:py-16 lg:py-20">
             <div className="container px-4 md:px-6 mx-auto w-full">
               <div className="grid lg:grid-cols-2 gap-8 items-center max-w-6xl mx-auto w-full">
                 <div className="flex flex-col space-y-5 order-2 lg:order-1">
@@ -137,6 +138,7 @@ export default function DishboardLandingPage() {
                           {t.hero.titleHighlight}
                         </span>
                       )}
+                      {t.hero.titleSuffix && ` ${t.hero.titleSuffix}`}
                   </h1>
                     <p className="text-xl md:text-2xl text-gray-600">{t.hero.subtitle}</p>
                 </div>
@@ -171,7 +173,7 @@ export default function DishboardLandingPage() {
             </div>
           </div>
 
-          <section className="w-full py-6 md:py-8 flex items-center bg-[#2A3C3F] text-white mt-auto">
+          <section className="w-full py-8 md:py-10 flex items-center bg-[#2A3C3F] text-white mt-auto">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16 text-center md:text-left">
               <div className="flex items-center gap-3">
@@ -192,7 +194,7 @@ export default function DishboardLandingPage() {
           </section>
         </section>
 
-        <section className="w-full min-h-[600px] py-16 md:py-24 bg-white flex items-center">
+        <section className="w-full min-h-[600px] py-20 md:py-28 bg-white flex items-center">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-5xl mx-auto">
               <div className="order-2 lg:order-1 flex justify-center">
@@ -229,7 +231,7 @@ export default function DishboardLandingPage() {
 
         <section
           id="como-funciona"
-          className="w-full bg-[#EDEEEF] py-12 md:py-16"
+          className="w-full bg-[#EDEEEF] py-16 md:py-20"
         >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-2 text-center mb-8 md:mb-12">
@@ -238,17 +240,31 @@ export default function DishboardLandingPage() {
             </div>
 
             <div className="w-full max-w-5xl lg:max-w-7xl mx-auto flex justify-center">
-              <img
+              {/* Mobile version - vertical layout */}
+              <Image
+                src="/dishboard-flow-vertical.png"
+                alt={t.howItWorks.title}
+                width={800}
+                height={1200}
+                className="w-max max-w-none h-auto block md:hidden"
+                style={{ maxHeight: '90vh', objectFit: 'contain' }}
+                priority
+              />
+              {/* Desktop version - horizontal layout */}
+              <Image
                 src="/dishboard-flow.png"
                 alt={t.howItWorks.title}
-                className="max-w-full h-auto"
+                width={1200}
+                height={800}
+                className="max-w-full h-auto hidden md:block"
                 style={{ maxHeight: '70vh', objectFit: 'contain' }}
+                priority
               />
             </div>
           </div>
         </section>
 
-        <section id="plataforma" className="w-full py-10 md:py-14 bg-white">
+        <section id="plataforma" className="w-full py-14 md:py-18 bg-white">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-3 text-center mb-8">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-[#2A3C3F]">{t.platform.title}</h2>
@@ -261,7 +277,7 @@ export default function DishboardLandingPage() {
                   </div>
         </section>
 
-        <section id="beneficios" className="w-full py-10 md:py-14 bg-gray-100">
+        <section id="beneficios" className="w-full py-14 md:py-18 bg-gray-100">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid lg:grid-cols-2 gap-8 items-center max-w-6xl mx-auto">
               <div className="relative">
@@ -325,7 +341,7 @@ export default function DishboardLandingPage() {
           </div>
         </section>
 
-        <section className="w-full py-12 md:py-16 bg-white">
+        <section className="w-full py-16 md:py-20 bg-white">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-[#2A3C3F] mb-8">{t.faq.title}</h2>
@@ -338,7 +354,7 @@ export default function DishboardLandingPage() {
           </div>
         </section>
 
-        <section id="waitlist" className="w-full py-12 md:py-24 bg-[#2A3C3F] text-white">
+        <section id="waitlist" className="w-full py-16 md:py-28 bg-[#2A3C3F] text-white">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-6 text-center max-w-2xl mx-auto">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">{t.waitlist.title}</h2>
