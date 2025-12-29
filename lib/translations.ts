@@ -142,8 +142,8 @@ export const translations = {
       subtitle: 'Public when things go well. Private when they don\'t.',
     },
     platform: {
-      title: 'More than a QR: your intelligence hub',
-      subtitle: 'dishboard collects all feedback (from Google, TripAdvisor, and your QR) and turns it into insights you can act on.',
+      title: 'Everything that happens in your restaurant, in one place',
+      subtitle: 'Reviews and key data, organized so you understand what works and what to improve.',
     },
     benefits: {
       title: '',
