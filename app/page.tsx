@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetTrigger, SheetContent, SheetTitle } from "@/components/ui/sheet"
+
 import { Menu, QrCode, MapPin, Star, Nfc, ShieldCheck, Users, MessageSquare, ChevronDown } from "lucide-react"
 import { WaitlistForm } from "@/components/waitlist-form"
 import { StarRating } from "@/components/star-rating"
@@ -242,7 +242,7 @@ export default function DishboardLandingPage() {
             <div className="w-full max-w-5xl lg:max-w-7xl mx-auto flex justify-center">
               {/* Mobile version - vertical layout */}
               <Image
-                src="/dishboard-flow-vertical.png"
+                src={locale === 'en' ? "/dishboard-flow-vertical-en.png" : "/dishboard-flow-vertical.png"}
                 alt={t.howItWorks.title}
                 width={800}
                 height={1200}
@@ -252,7 +252,7 @@ export default function DishboardLandingPage() {
               />
               {/* Desktop version - horizontal layout */}
               <Image
-                src="/dishboard-flow.png"
+                src={locale === 'en' ? "/dishboard-flow-en.png" : "/dishboard-flow.png"}
                 alt={t.howItWorks.title}
                 width={1200}
                 height={800}

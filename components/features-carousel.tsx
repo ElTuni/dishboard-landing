@@ -42,6 +42,8 @@ const getImagePath = (imageText: string): string | null => {
     "Employee mentions ranking": "/example-ranking-empleados.png",
     "Mapa de calor de ocupación": "/expample-graph-ocupacion.png",
     "Occupancy heatmap": "/expample-graph-ocupacion.png",
+    "Editor de código QR": "/qr-code.png",
+    "QR code editor": "/qr-code.png",
   }
   return imageMap[imageText] || null
 }
