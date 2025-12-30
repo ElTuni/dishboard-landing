@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import {
   ChevronLeft,
@@ -57,13 +57,26 @@ const getImagePath = (imageText: string): string | null => {
 export function FeaturesCarousel({ features }: FeaturesCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([0]))
+  const [direction, setDirection] = useState<'left' | 'right'>('right')
+  const imageRef = useRef<HTMLDivElement>(null)
 
   const next = useCallback(() => {
-    setCurrentIndex((current) => (current + 1) % features.length)
+    setDirection('right')
+    setCurrentIndex((current) => {
+      const nextIndex = (current + 1) % features.length
+      setLoadedImages((prev) => new Set(prev).add(nextIndex))
+      return nextIndex
+    })
   }, [features.length])
 
   const prev = useCallback(() => {
-    setCurrentIndex((current) => (current - 1 + features.length) % features.length)
+    setDirection('left')
+    setCurrentIndex((current) => {
+      const prevIndex = (current - 1 + features.length) % features.length
+      setLoadedImages((prev) => new Set(prev).add(prevIndex))
+      return prevIndex
+    })
   }, [features.length])
 
   useEffect(() => {
@@ -71,6 +84,21 @@ export function FeaturesCarousel({ features }: FeaturesCarouselProps) {
     const interval = setInterval(next, 4000)
     return () => clearInterval(interval)
   }, [isAutoPlaying, next])
+
+  useEffect(() => {
+    const preloadAdjacentImages = () => {
+      const nextIndex = (currentIndex + 1) % features.length
+      const prevIndex = (currentIndex - 1 + features.length) % features.length
+      setLoadedImages((prev) => {
+        const newSet = new Set(prev)
+        newSet.add(nextIndex)
+        newSet.add(prevIndex)
+        return newSet
+      })
+    }
+    const timeout = setTimeout(preloadAdjacentImages, 100)
+    return () => clearTimeout(timeout)
+  }, [currentIndex, features.length])
 
   return (
     <div className="relative" onMouseEnter={() => setIsAutoPlaying(false)} onMouseLeave={() => setIsAutoPlaying(true)}>
@@ -113,15 +141,28 @@ export function FeaturesCarousel({ features }: FeaturesCarouselProps) {
 
         {/* Right: Feature image */}
         <div className="order-1 lg:order-2">
-          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-gray-200" style={{ background: 'linear-gradient(to bottom right, #EAF8F0, #E8EBEB)' }}>
+          <div
+            ref={imageRef}
+            className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-gray-200"
+            style={{ background: 'linear-gradient(to bottom right, #EAF8F0, #E8EBEB)' }}
+          >
             {getImagePath(features[currentIndex].image) ? (
-              <Image
-                src={getImagePath(features[currentIndex].image)!}
-                alt={features[currentIndex].title}
-                fill
-                className="object-contain p-4"
-                priority={currentIndex === 0}
-              />
+              <div
+                key={currentIndex}
+                className={cn(
+                  "absolute inset-0 transition-all duration-500 ease-out",
+                  direction === 'right' ? "animate-slide-in-right" : "animate-slide-in-left"
+                )}
+              >
+                <Image
+                  src={getImagePath(features[currentIndex].image)!}
+                  alt={features[currentIndex].title}
+                  fill
+                  className="object-contain p-4"
+                  priority={loadedImages.has(currentIndex)}
+                  loading={loadedImages.has(currentIndex) ? "eager" : "lazy"}
+                />
+              </div>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center p-8">
