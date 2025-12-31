@@ -57,26 +57,17 @@ const getImagePath = (imageText: string): string | null => {
 export function FeaturesCarousel({ features }: FeaturesCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([0]))
   const [direction, setDirection] = useState<'left' | 'right'>('right')
   const imageRef = useRef<HTMLDivElement>(null)
 
   const next = useCallback(() => {
     setDirection('right')
-    setCurrentIndex((current) => {
-      const nextIndex = (current + 1) % features.length
-      setLoadedImages((prev) => new Set(prev).add(nextIndex))
-      return nextIndex
-    })
+    setCurrentIndex((current) => (current + 1) % features.length)
   }, [features.length])
 
   const prev = useCallback(() => {
     setDirection('left')
-    setCurrentIndex((current) => {
-      const prevIndex = (current - 1 + features.length) % features.length
-      setLoadedImages((prev) => new Set(prev).add(prevIndex))
-      return prevIndex
-    })
+    setCurrentIndex((current) => (current - 1 + features.length) % features.length)
   }, [features.length])
 
   useEffect(() => {
@@ -85,20 +76,16 @@ export function FeaturesCarousel({ features }: FeaturesCarouselProps) {
     return () => clearInterval(interval)
   }, [isAutoPlaying, next])
 
+  // Precargar todas las imágenes al montar el componente
   useEffect(() => {
-    const preloadAdjacentImages = () => {
-      const nextIndex = (currentIndex + 1) % features.length
-      const prevIndex = (currentIndex - 1 + features.length) % features.length
-      setLoadedImages((prev) => {
-        const newSet = new Set(prev)
-        newSet.add(nextIndex)
-        newSet.add(prevIndex)
-        return newSet
-      })
-    }
-    const timeout = setTimeout(preloadAdjacentImages, 100)
-    return () => clearTimeout(timeout)
-  }, [currentIndex, features.length])
+    features.forEach((feature) => {
+      const imagePath = getImagePath(feature.image)
+      if (imagePath) {
+        const img = new window.Image()
+        img.src = imagePath
+      }
+    })
+  }, [features])
 
   return (
     <div className="relative" onMouseEnter={() => setIsAutoPlaying(false)} onMouseLeave={() => setIsAutoPlaying(true)}>
@@ -159,8 +146,7 @@ export function FeaturesCarousel({ features }: FeaturesCarouselProps) {
                   alt={features[currentIndex].title}
                   fill
                   className="object-contain p-4"
-                  priority={loadedImages.has(currentIndex)}
-                  loading={loadedImages.has(currentIndex) ? "eager" : "lazy"}
+                  loading="eager"
                 />
               </div>
             ) : (
