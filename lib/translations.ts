@@ -36,7 +36,8 @@ export const translations = {
     },
     howItWorks: {
       title: 'Cada reseña en el canal correcto',
-      subtitle: 'Públicas cuando todo va bien. Privadas cuando no.',
+      subtitle1: 'Públicas cuando todo va bien.',
+      subtitle2: 'Privadas cuando no.',
     },
     platform: {
       title: 'Todo lo que pasa en tu restaurante, en un solo lugar',
@@ -139,7 +140,8 @@ export const translations = {
     },
     howItWorks: {
       title: 'Every review in the right channel',
-      subtitle: 'Public when things go well. Private when they don\'t.',
+      subtitle1: 'Public when things go well.',
+      subtitle2: 'Private when they don\'t.',
     },
     platform: {
       title: 'Everything that happens in your restaurant, in one place',

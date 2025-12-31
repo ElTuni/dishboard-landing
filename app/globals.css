@@ -7,6 +7,10 @@
     text-wrap: balance;
   }
 
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
   @keyframes slide-in-right {
     from {
       opacity: 0;

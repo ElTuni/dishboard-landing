@@ -178,14 +178,14 @@ export default function DishboardLandingPage() {
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16 text-center md:text-left">
               <div className="flex items-center gap-3">
                 <MapPin className="h-7 w-7 text-[#8EE0B2]" />
-                <p className="text-base md:text-lg">
+                <p className="text-base md:text-lg text-pretty">
                   <span className="font-bold">{t.valueBar.moreReviews}</span> = {t.valueBar.betterRanking}
                 </p>
               </div>
               <div className="hidden md:block w-px h-10 bg-white/20"></div>
               <div className="flex items-center gap-3">
                 <Star className="h-7 w-7 text-[#8EE0B2] fill-[#8EE0B2]" />
-                <p className="text-base md:text-lg">
+                <p className="text-base md:text-lg text-pretty">
                   <span className="font-bold">{t.valueBar.betterReputation}</span> = {t.valueBar.moreCustomers}
                 </p>
               </div>
@@ -214,13 +214,13 @@ export default function DishboardLandingPage() {
                 </div>
               </div>
               <div className="order-1 lg:order-2 space-y-4">
-                <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl text-[#2A3C3F]">
+                <h2 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl text-[#2A3C3F] text-pretty">
                   {t.qrSection.title} <AnimatedCounter end={10} className="text-[#8EE0B2]" /> {t.qrSection.titleSuffix}
                 </h2>
                 <p className="text-gray-600 md:text-lg lg:text-xl">
                   {t.qrSection.description1} <strong>{t.qrSection.description1Highlight}</strong> {t.qrSection.description1End}
                 </p>
-                <p className="text-gray-600 md:text-lg lg:text-xl">
+                <p className="text-gray-600 md:text-lg lg:text-xl text-pretty">
                   {t.qrSection.description2}{" "}
                   <span className="font-semibold text-[#2A3C3F]">{t.qrSection.description2Highlight}</span>.
                 </p>
@@ -236,7 +236,9 @@ export default function DishboardLandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-2 text-center mb-8 md:mb-12">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl text-[#2A3C3F]">{t.howItWorks.title}</h2>
-              <p className="max-w-[600px] text-gray-600 md:text-lg">{t.howItWorks.subtitle}</p>
+              <p className="max-w-[600px] text-gray-600 md:text-lg">
+                {t.howItWorks.subtitle1}<br className="block md:hidden" /> {t.howItWorks.subtitle2}
+              </p>
             </div>
 
             <div className="w-full max-w-5xl lg:max-w-7xl mx-auto flex justify-center">
