@@ -54,6 +54,21 @@ export default function DishboardLandingPage() {
   const t = getTranslations(locale)
   const currentFeatures = features[locale]
 
+  const scrollToWaitlist = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    const waitlistSection = document.getElementById('waitlist')
+    if (waitlistSection) {
+      const headerHeight = 64 // h-16 = 4rem = 64px
+      const elementPosition = waitlistSection.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerHeight
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+  }
+
   if (!mounted) {
     return null
   }
@@ -81,7 +96,7 @@ export default function DishboardLandingPage() {
             </Link>
           </nav>
         <div className="ml-auto flex items-center gap-2">
-            <Link href="#waitlist">
+            <Link href="#waitlist" onClick={scrollToWaitlist}>
             <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] hidden sm:flex">{t.nav.tryIt}</Button>
             </Link>
           </div>
@@ -110,7 +125,7 @@ export default function DishboardLandingPage() {
                 {t.nav.benefits}
                 </Link>
                 <div className="flex flex-col gap-4 mt-4">
-                  <Link href="#waitlist">
+                  <Link href="#waitlist" onClick={scrollToWaitlist}>
                   <Button className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] w-full">{t.nav.tryIt}</Button>
                   </Link>
                 </div>
@@ -144,7 +159,7 @@ export default function DishboardLandingPage() {
                 </div>
 
                   <div className="flex  gap-3 flex-row  pt-2">
-                  <Link href="#waitlist">
+                  <Link href="#waitlist" onClick={scrollToWaitlist}>
                       <Button size="lg" className="bg-[#8EE0B2] text-gray-900 hover:bg-[#7cd4a2] text-base px-8">
                         {t.hero.cta}
                     </Button>
